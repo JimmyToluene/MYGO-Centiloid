@@ -20,8 +20,8 @@
   <a href="https://github.com/JimmyToluene">Jimmy Jia</a> ·
   <a href="https://github.com/Yujie-Jessie">Yujie Hu</a> ·
   <a href="https://github.com/ayiii-a">Zijiang Zhao</a> ·
-  <a href="https://github.com/">Member 4</a>
-  <a href="https://github.com/">Member 5</a>
+  <a href="https://github.com/">Member 4</a> ·
+  <a href="https://github.com/">Member 5</a> ·
   <a href="https://github.com/">Member 6</a>
 </p>
 
@@ -215,7 +215,10 @@ Input: (B, 1, 128, 128, 128) + tracer_id (B,)
 - **Sampler:** 6-bin `WeightedRandomSampler` (inverse frequency over Centiloid bins)
 - **Early stopping:** patience = 20 epochs on val MAE
 
-**Augmentation** — per-tracer strength: **STRONG** for NAV / PIB (n < 100), **standard** for FBP / FBB. All transforms preserve `(1, 128, 128, 128)` shape and clamp to `[0, 1]`.
+**Augmentation** 
+per-tracer strength: 
+**STRONG** for NAV / PIB (n < 100), **standard** for FBP / FBB. 
+All transforms preserve `(1, 128, 128, 128)` shape and clamp to `[0, 1]`.
 
 - `RandFlipLR` — left–right flip (brain is bilaterally symmetric)
 - `RandAffine3D` — small rotation + translation

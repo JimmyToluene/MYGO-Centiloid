@@ -380,3 +380,81 @@ Scoring metrics used by the judges:
 
 * **Primary:** Mean Absolute Error (MAE) in centiloid units
 * **Secondary:** Pearson correlation coefficient between predicted and true centiloid scores
+
+## References
+
+Citations for the prior work that directly informed each MYGO component.
+
+### Architecture
+
+1. **He K, Zhang X, Ren S, Sun J.** Deep Residual Learning for Image
+   Recognition. *CVPR* 2016. — the 2D ResNet-18 backbone we extend to 3D.
+   [arXiv:1512.03385](https://arxiv.org/abs/1512.03385)
+2. **Hara K, Kataoka H, Satoh Y.** Can Spatiotemporal 3D CNNs Retrace the
+   History of 2D CNNs and ImageNet? *CVPR* 2018. — empirical basis for
+   using 3D ResNets on volumetric data at our scale.
+   [arXiv:1711.09577](https://arxiv.org/abs/1711.09577)
+3. **Perez E, Strub F, de Vries H, Dumoulin V, Courville A.** FiLM:
+   Visual Reasoning with a General Conditioning Layer. *AAAI* 2018. —
+   the `FiLMBlock` at every ResNet stage (tracer-conditioned γ, β).
+   [arXiv:1709.07871](https://arxiv.org/abs/1709.07871)
+4. **Dumoulin V, Shlens J, Kudlur M.** A Learned Representation for
+   Artistic Style. *ICLR* 2017. — conditional instance normalization,
+   the conceptual precursor to our input-level `TracerNorm`.
+   [arXiv:1610.07629](https://arxiv.org/abs/1610.07629)
+
+### Loss and optimization
+
+5. **Huber PJ.** Robust Estimation of a Location Parameter. *Annals of
+   Mathematical Statistics* 1964;35(1):73–101. — Huber term in
+   `CentiloidLoss` with `δ=25` ≈ Centiloid IQR.
+6. **Loshchilov I, Hutter F.** Decoupled Weight Decay Regularization
+   (AdamW). *ICLR* 2019.
+   [arXiv:1711.05101](https://arxiv.org/abs/1711.05101)
+7. **Loshchilov I, Hutter F.** SGDR: Stochastic Gradient Descent with
+   Warm Restarts. *ICLR* 2017. — `CosineAnnealingWarmRestarts(T_0=20, T_mult=2)`.
+   [arXiv:1608.03983](https://arxiv.org/abs/1608.03983)
+8. **Micikevicius P, et al.** Mixed Precision Training. *ICLR* 2018. —
+   AMP autocast + GradScaler in `dev/train.py`.
+   [arXiv:1710.03740](https://arxiv.org/abs/1710.03740)
+9. **Buda M, Maki A, Mazurowski MA.** A systematic study of the class
+   imbalance problem in convolutional neural networks.
+   *Neural Networks* 2018;106:249–259. — motivation for our six-bin
+   `WeightedRandomSampler` on Centiloid.
+
+### Medical-imaging augmentation
+
+10. **Pérez-García F, Sparks R, Ourselin S.** TorchIO: a Python library
+    for efficient loading, preprocessing, augmentation and patch-based
+    sampling of medical images in deep learning. *Computer Methods and
+    Programs in Biomedicine* 2021;208:106236. — reference for
+    per-tracer-strength 3D augmentation choices in
+    `abpet/data/augmentation.py`.
+    [doi:10.1016/j.cmpb.2021.106236](https://doi.org/10.1016/j.cmpb.2021.106236)
+
+### Domain — amyloid PET and the Centiloid scale
+
+11. **Klunk WE, et al.** The Centiloid Project: standardizing
+    quantitative amyloid plaque estimation by PET. *Alzheimer's &
+    Dementia* 2015;11(1):1–15. — the regression target; source of the
+    positivity threshold (24.4 CL) used throughout `eda/`.
+    [doi:10.1016/j.jalz.2014.07.003](https://doi.org/10.1016/j.jalz.2014.07.003)
+12. **Jagust WJ, et al.** The Alzheimer's Disease Neuroimaging Initiative
+    2 PET Core: 2015. *Alzheimer's & Dementia* 2015;11(7):757–771. —
+    reference preprocessing pipeline for amyloid PET.
+    [doi:10.1016/j.jalz.2015.05.001](https://doi.org/10.1016/j.jalz.2015.05.001)
+
+### Related Kolachalama Lab work
+
+13. **Qiu S, et al.** Multimodal deep learning for Alzheimer's disease
+    dementia assessment. *Nature Communications* 2022;13:3404. — the
+    lab's 3D-CNN + fusion precedent for structural brain imaging.
+    [doi:10.1038/s41467-022-31037-5](https://doi.org/10.1038/s41467-022-31037-5)
+    · [vkola-lab/ncomms2022](https://github.com/vkola-lab/ncomms2022)
+14. **Kolachalama Lab.** AI-driven fusion of multimodal data for
+    Alzheimer's disease biomarker assessment. *Nature Communications*
+    2025. — the lab's current amyloid/τ multimodal framework; its
+    `image_processing/pet_pipeline.sh` is the upstream amyloid-PET
+    reference pipeline.
+    [doi:10.1038/s41467-025-62590-4](https://doi.org/10.1038/s41467-025-62590-4)
+    · [vkola-lab/ncomms2025](https://github.com/vkola-lab/ncomms2025)

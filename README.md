@@ -12,7 +12,15 @@
    <b>1st prize</b> at the
   <a href="https://medaihack.org/"><b>MedAI Spring 2026 Hackathon</b></a>
   organized by the
-  <a href="https://github.com/vkola-lab/medaihack">Kolachalama Lab, Boston University</a>.
+  <a href="https://github.com/vkola-lab/medaihack"><b>Kolachalama Lab, Boston University</b></a>.
+</p>
+
+<p align="center">
+  <b>Team 25 — It's MYGO!!!!!!</b><br/>
+  <a href="https://github.com/JimmyToluene">Jimmy Jia</a> ·
+  <a href="https://github.com/">Member 2</a> ·
+  <a href="https://github.com/">Member 3</a> ·
+  <a href="https://github.com/">Member 4</a>
 </p>
 
 <p align="center">
@@ -21,6 +29,19 @@
   <a href="https://medaihack.org/"><img src="https://img.shields.io/badge/MedAI%20Spring%202026-1st%20place-gold.svg" alt="1st place"/></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"/></a>
 </p>
+
+---
+
+## Contents
+
+1. [Results](#results)
+2. [Quick start](#quick-start)
+3. [Repository Structure](#repository-structure)
+4. [Architecture](#architecture)
+5. [Data](#data)
+6. [Environment Setup](#environment-setup)
+7. [Outputs](#outputs)
+8. [References](#references)
 
 ---
 

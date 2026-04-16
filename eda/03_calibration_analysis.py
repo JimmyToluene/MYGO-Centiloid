@@ -140,8 +140,9 @@ def plot_voxel_intensity_per_tracer(stats_df: pd.DataFrame, out_dir: str):
     for i, (metric, title) in enumerate(metrics.items()):
         ax = axes[i]
         sns.violinplot(data=stats_df, x="TRACER.AMY", y=metric,
+                       hue="TRACER.AMY", hue_order=TRACER_ORDER,
                        order=TRACER_ORDER, palette=palette,
-                       ax=ax, inner="box", cut=0, alpha=0.8)
+                       ax=ax, inner="box", cut=0, alpha=0.8, legend=False)
         sns.stripplot(data=stats_df, x="TRACER.AMY", y=metric,
                       order=TRACER_ORDER, color="black",
                       ax=ax, alpha=0.2, size=3, jitter=True)
@@ -186,8 +187,9 @@ def plot_foreground_fraction(stats_df: pd.DataFrame, out_dir: str):
     # Boxplot
     ax = axes[1]
     sns.boxplot(data=stats_df, x="TRACER.AMY", y="fg_fraction",
+                hue="TRACER.AMY", hue_order=TRACER_ORDER,
                 order=TRACER_ORDER, palette=palette, ax=ax,
-                width=0.5, fliersize=4)
+                width=0.5, fliersize=4, legend=False)
     ax.set_title("Foreground Fraction per Tracer")
     ax.set_xlabel("Radiotracer")
     ax.set_ylabel("Fraction of Voxels > threshold")
@@ -238,7 +240,8 @@ def plot_cohort_comparison(df: pd.DataFrame,
     # Volume mean intensity by cohort
     ax = axes[1]
     sns.boxplot(data=stats_df, x="cohort", y="vol_mean",
-                palette=cohort_pal, ax=ax, width=0.4, fliersize=4)
+                hue="cohort", palette=cohort_pal, ax=ax,
+                width=0.4, fliersize=4, legend=False)
     sns.stripplot(data=stats_df, x="cohort", y="vol_mean",
                   color="black", ax=ax, alpha=0.2, size=3)
     ax.set_title("Volume Mean Intensity by Cohort")
@@ -359,7 +362,7 @@ def main():
         description="EDA 03 — Volume Intensity & Calibration Analysis")
     parser.add_argument("--train_csv",  default="data/train.csv")
     parser.add_argument("--val_csv",    default="data/val.csv")
-    parser.add_argument("--out_dir",    default="results/eda/03_calibration_analysis")
+    parser.add_argument("--out_dir",    default="results/eda/pre_train/03_calibration_analysis")
     parser.add_argument("--n_samples",  type=int, default=50,
                         help="Volumes to sample per tracer (default=50)")
     parser.add_argument("--cohort_csv", default=None,

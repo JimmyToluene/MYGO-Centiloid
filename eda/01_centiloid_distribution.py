@@ -356,7 +356,7 @@ def main():
         description="EDA 01 — Centiloid Distribution Analysis")
     parser.add_argument("--train_csv", default="data/train.csv")
     parser.add_argument("--val_csv",   default="data/val.csv")
-    parser.add_argument("--out_dir",   default="results/eda/01_centiloid_distribution")
+    parser.add_argument("--out_dir",   default="results/eda/pre_train/01_centiloid_distribution")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)

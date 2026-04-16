@@ -42,7 +42,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--csv",         type=str, required=True)
     parser.add_argument("--checkpoint",  type=str, required=True)
-    parser.add_argument("--output",      type=str, default="predictions.csv")
+    parser.add_argument("--output",      type=str, default="results/predictions.csv")
     parser.add_argument("--batch_size",  type=int, default=4)
     parser.add_argument("--num_workers", type=int, default=4)
     args = parser.parse_args()
@@ -88,6 +88,7 @@ def main():
         out_df.insert(0, "ID", dataset.df["ID"])
     out_df["PREDICTED_CENTILOIDS"] = predictions
 
+    os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
     out_df.to_csv(args.output, index=False)
     print(f"Saved {len(out_df)} predictions → {args.output}")
 

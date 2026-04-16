@@ -1,5 +1,0 @@
-ID,npy_path,TRACER.AMY
-DEMO00,pseudodata/sample_00_FBP.npy,FBP
-DEMO01,pseudodata/sample_01_FBB.npy,FBB
-DEMO02,pseudodata/sample_02_NAV.npy,NAV
-DEMO03,pseudodata/sample_03_PIB.npy,PIB

@@ -246,8 +246,9 @@ def plot_residual_distribution(df: pd.DataFrame, out_dir: str):
     ax = fig.add_subplot(gs[1, 0])
     palette = {t: TRACER_COLORS[t] for t in TRACER_ORDER}
     sns.violinplot(data=df, x="TRACER.AMY", y="residual",
+                   hue="TRACER.AMY", hue_order=TRACER_ORDER,
                    order=TRACER_ORDER, palette=palette, ax=ax,
-                   inner="box", cut=0, alpha=0.8)
+                   inner="box", cut=0, alpha=0.8, legend=False)
     ax.axhline(0, color="red", lw=1.8, ls="--")
     ax.set_title("Residuals per Tracer")
     ax.set_xlabel("Tracer")
@@ -256,8 +257,9 @@ def plot_residual_distribution(df: pd.DataFrame, out_dir: str):
     # 5. Absolute error per tracer
     ax = fig.add_subplot(gs[1, 1])
     sns.boxplot(data=df, x="TRACER.AMY", y="abs_error",
+                hue="TRACER.AMY", hue_order=TRACER_ORDER,
                 order=TRACER_ORDER, palette=palette, ax=ax,
-                width=0.5, fliersize=3)
+                width=0.5, fliersize=3, legend=False)
     # Add MAE text
     for i, tracer in enumerate(TRACER_ORDER):
         sub = df[df["TRACER.AMY"] == tracer]
@@ -271,8 +273,9 @@ def plot_residual_distribution(df: pd.DataFrame, out_dir: str):
     # 6. Residuals per amyloid status
     ax = fig.add_subplot(gs[1, 2])
     sns.boxplot(data=df, x="amyloid_status", y="residual",
+                hue="amyloid_status",
                 palette={"Positive": "#F44336", "Negative": "#4CAF50"},
-                ax=ax, width=0.4, fliersize=3)
+                ax=ax, width=0.4, fliersize=3, legend=False)
     ax.axhline(0, color="black", lw=1.8, ls="--")
     ax.set_title("Residuals by Amyloid Status")
     ax.set_xlabel("Amyloid Status")
@@ -356,9 +359,10 @@ def plot_error_by_centiloid_bin(df: pd.DataFrame, out_dir: str):
     ax = axes[1]
     bin_order = df["centiloid_bin"].cat.categories.tolist()
     sns.boxplot(data=df, x="centiloid_bin", y="residual",
+                hue="centiloid_bin",
                 order=bin_order, ax=ax,
                 palette=sns.color_palette("Blues_d", len(bin_order)),
-                width=0.5, fliersize=3)
+                width=0.5, fliersize=3, legend=False)
     ax.axhline(0, color="red", lw=1.8, ls="--")
     ax.set_xticklabels(bin_order, rotation=30)
     ax.set_xlabel("Centiloid Range")
@@ -509,7 +513,7 @@ def main():
     parser.add_argument("--pred_csv", default=None,
                         help="Path to predictions.csv "
                              "(columns: ID, PREDICTED_CENTILOIDS)")
-    parser.add_argument("--out_dir",  default="results/eda/04_model_error_analysis")
+    parser.add_argument("--out_dir",  default="results/eda/post_train/04_model_error_analysis")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)

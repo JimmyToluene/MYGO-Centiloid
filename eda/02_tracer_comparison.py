@@ -164,8 +164,9 @@ def plot_violin_boxplot(df: pd.DataFrame, out_dir: str):
     # Violin
     ax = axes[0]
     sns.violinplot(data=df, x="TRACER.AMY", y="CENTILOIDS",
+                   hue="TRACER.AMY", hue_order=TRACER_ORDER,
                    order=TRACER_ORDER, palette=palette, ax=ax,
-                   inner="quartile", cut=0, alpha=0.8)
+                   inner="quartile", cut=0, alpha=0.8, legend=False)
     ax.axhline(AMYLOID_POS_THRESHOLD, color="black",
                lw=1.8, ls="--", label="Threshold")
     ax.set_title("Violin Plot")
@@ -176,8 +177,9 @@ def plot_violin_boxplot(df: pd.DataFrame, out_dir: str):
     # Box + strip
     ax = axes[1]
     sns.boxplot(data=df, x="TRACER.AMY", y="CENTILOIDS",
+                hue="TRACER.AMY", hue_order=TRACER_ORDER,
                 order=TRACER_ORDER, palette=palette, ax=ax,
-                width=0.5, fliersize=0)
+                width=0.5, fliersize=0, legend=False)
     sns.stripplot(data=df, x="TRACER.AMY", y="CENTILOIDS",
                   order=TRACER_ORDER, color="black", ax=ax,
                   alpha=0.15, size=3, jitter=True)
@@ -320,7 +322,7 @@ def main():
         description="EDA 02 — Radiotracer Comparison Analysis")
     parser.add_argument("--train_csv", default="data/train.csv")
     parser.add_argument("--val_csv",   default="data/val.csv")
-    parser.add_argument("--out_dir",   default="results/eda/02_tracer_comparison")
+    parser.add_argument("--out_dir",   default="results/eda/pre_train/02_tracer_comparison")
     parser.add_argument("--n_slices",  type=int, default=3,
                         help="PET volumes per tracer to visualize")
     args = parser.parse_args()

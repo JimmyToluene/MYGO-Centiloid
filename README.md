@@ -1,15 +1,30 @@
-# MYGO-Centiloid
-**M**ultitracer-conditioned 3D resNet for am**Y**loid β-PET centiloid re**G**ressi**O**n.
-Team25 **It's MYGO!!!!!!**
+<p align="center">
+  <img src="figures/logos/mygo_centiloid_logo.svg" alt="MYGO-Centiloid Logo" width="320"/>
+</p>
 
-**1st prize** to the **MedAI Spring 2026 Hackathon** organized by the Kolachalama Lab, Boston University https://github.com/vkola-lab/medaihack.
+<h1 align="center">MYGO-Centiloid</h1>
+
+<p align="center">
+  <b>M</b>ultitracer-conditioned 3D res<b>N</b>et for am<b>Y</b>loid β-PET centil<b>O</b>id re<b>G</b>ression
+</p>
+
+<p align="center">
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.12+-blue.svg" alt="Python"/></a>
+  <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-2.8-ee4c2c.svg" alt="PyTorch"/></a>
+  <a href="https://medaihack.org/"><img src="https://img.shields.io/badge/MedAI%20Spring%202026-1st%20place-gold.svg" alt="1st place"/></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"/></a>
+</p>
+
+---
+
+Team25 **It's MYGO!!!!!!** · **1st prize** at the **MedAI Spring 2026 Hackathon** organized by the Kolachalama Lab, Boston University — <https://github.com/vkola-lab/medaihack>.
 
 <p align="center">
   <img src="figures/architecture.png" width="900" alt="PETResNet architecture"/>
 </p>
 
 We predict continuous Centiloid scores from preprocessed 3D amyloid β-PET
-volumes (`(1, 128, 128, 128)`, four tracers: **FBP**, **FBB**, **NAV**, **PIB**).
+volumes (`(1, 128, 128, 128)`, four tracers: **FBP**, **FBB**, **NAV**, **PIB**), trained on the MedAI Spring 2026 Hackathon data (2,000 train + 500 val, NACC + A4 cohorts). The pipeline is specifically designed to handle the extreme right-skew and 64.8 % negative-class imbalance in the Centiloid distribution.
 
 Our model `PETResNet` combines:
 - **TracerNorm** — per-tracer learned (γ, β) intensity rescale at the input;

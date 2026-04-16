@@ -21,6 +21,8 @@
   <a href="https://github.com/Yujie-Jessie">Yujie Hu</a> ·
   <a href="https://github.com/ayiii-a">Zijiang Zhao</a> ·
   <a href="https://github.com/">Member 4</a>
+  <a href="https://github.com/">Member 5</a>
+  <a href="https://github.com/">Member 6</a>
 </p>
 
 <p align="center">

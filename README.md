@@ -5,7 +5,7 @@
 <h1 align="center">MYGO-Centiloid</h1>
 
 <p align="center">
-  <b>M</b>ultitracer-conditioned 3D res<b>N</b>et for am<b>Y</b>loid β-PET centil<b>O</b>id re<b>G</b>ression
+  <b>M</b>ultitracer-conditioned 3D resnet18 for am<b>Y</b>loid β-PET centil<b>O</b>id re<b>G</b>ression
 </p>
 
 <p align="center">

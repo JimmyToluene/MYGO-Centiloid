@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  Team25 <b>It's MYGO!!!!!!</b> · <b>1st prize</b> at the
+   <b>1st prize</b> at the
   <a href="https://medaihack.org/"><b>MedAI Spring 2026 Hackathon</b></a>
   organized by the
   <a href="https://github.com/vkola-lab/medaihack">Kolachalama Lab, Boston University</a>.

@@ -59,7 +59,7 @@ distribution.
 > **Val set:** MAE **11.73 CL** · Pearson r **0.936** — a **40.7 %** MAE reduction over the starter baseline (19.77 CL).
 
 <p align="center">
-  <img src="figures/architecture.png" width="900" alt="PETResNet architecture"/>
+  <img src="figures/architecture/pet_resnet-v1.png" width="900" alt="PETResNet architecture"/>
 </p>
 
 Our model `PETResNet` combines:

@@ -43,7 +43,9 @@
 5. [Data](#data)
 6. [Environment Setup](#environment-setup)
 7. [Outputs](#outputs)
-8. [References](#references)
+8. [Disclaimer](#disclaimer)
+9. [License](#license)
+10. [References](#references)
 
 ---
 
@@ -338,6 +340,35 @@ checkpoints/
 
 Each EDA folder contains `*.png` figures and a `*.txt` summary report
 with auditable numbers.
+
+---
+
+## Disclaimer
+
+This software and any trained model weights distributed with it are
+provided **for academic and research purposes only**. They are **not a
+medical device** and have **not** been validated or approved by the
+U.S. Food and Drug Administration (FDA), the European Medicines Agency
+(EMA), or any other regulatory body.
+
+**The model and its inferences must not be used to inform clinical
+diagnosis, treatment decisions, prognosis, or any patient-care
+workflow.** The training data (2,000 hackathon samples across four
+tracers) is too small and too narrow to support any clinical claim, and
+the model has undergone no prospective or external validation.
+
+Any use of this software or its outputs in a clinical setting is the
+sole responsibility of the user.
+
+---
+
+## License
+
+Released under the **MIT License** — see [`LICENSE`](LICENSE) for the
+full text, including the research-use-only notice.
+
+All code in `abpet/` and `dev/` is original to this project; no third-party
+code carrying a copyleft or non-commercial license was incorporated.
 
 ---
 

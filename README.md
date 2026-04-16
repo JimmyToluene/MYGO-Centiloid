@@ -1,8 +1,8 @@
 # MYGO
 
-***M**ultitracer-conditioned 3D resNet for am**Y**loid β-PET centil**O**id re**G**ression.*
+**M**ultitracer-conditioned 3D resNet for am**Y**loid β-PET centiloid re**G**ressi**O**n.
 
-Team **MYGO** — submission to the **MedAI Spring 2026 Hackathon** organized
+Team25 **It's MYGO!!!!!!** — submission to the **MedAI Spring 2026 Hackathon** organized
 by the Kolachalama Lab, Boston University —
 <https://github.com/vkola-lab/medaihack>.
 
@@ -23,9 +23,11 @@ This repository predicts continuous Centiloid scores from preprocessed
 Every design decision is motivated by an empirical finding documented in
 [`eda/`](eda/README.md) and recorded in each script's `Justifies:` header.
 
-## Challenge overview
+## Overview
 
-Alzheimer's disease (AD) is the most common form of dementia and a growing global health crisis. One of its earliest hallmarks is the buildup of abnormal protein deposits in the brain called amyloid plaques, which can be detected years before symptom onset using Positron Emission Tomography (PET) imaging. The Centiloid scale provides us with a standardized measure of amyloid burden in brain amyloid PET scans, with scores near zero or negative indicating little to no amyloid, and higher scores signaling significant accumulation associated with AD risk. In this challenge, you will build computer vision models to predict Centiloid scores from already preprocessed 3D amyloid PET scans. However, these brain scans were acquired using different PET radiotracers since different hospitals and studies tend to use different imaging protocols. While all tracers are radioactive compounds that bind to amyloid plaques, each of them produces images with different intensity profiles and noise characteristics. Your models should be robust to this variation, and encoding tracer identity as part of your approach is encouraged, though not required. Participants will have access to 2,000 training samples and 500 validation samples, with final rankings determined on a held-out test set evaluated by the judges. Strong solutions may be included as contributions in a publishable research paper.
+Predict **centiloid scores** from preprocessed 3D amyloid PET brain scans. Centiloid is a standardized quantitative measure of amyloid-beta plaque burden in the brain and is a key biomarker for Alzheimer's disease. Higher centiloid values indicate greater amyloid deposition.
+
+**Task:** Given a preprocessed 3D PET volume and the radiotracer used, predict the continuous centiloid score.
 
 ## Quick demo
 
@@ -35,22 +37,6 @@ Verify a fresh checkout in under 5 seconds with the synthetic samples in
 ```bash
 python demo_inference.py                                       # random init
 python demo_inference.py --checkpoint checkpoints/best_model.pt  # trained
-```
-
-**Evaluation:** Your model will be evaluated on the validation set using **Mean Absolute Error (MAE)** in centiloid units as the primary metric, with **Pearson correlation coefficient** as the secondary metric. Since the task is continuous centiloid prediction from preprocessed 3D PET volumes, this pipeline is designed as a **regression** framework rather than classification.
-
-## Overview
-
-Predict **centiloid scores** from preprocessed 3D amyloid PET brain scans. Centiloid is a standardized quantitative measure of amyloid-beta plaque burden in the brain and is a key biomarker for Alzheimer's disease. Higher centiloid values indicate greater amyloid deposition.
-
-**Task:** Given a preprocessed 3D PET volume and the radiotracer used, predict the continuous centiloid score.
-
-## Clone GitHub repository
-
-```bash
-cd <your_team_folder>
-git clone https://github.com/vkola-lab/medaihack.git
-cd medaihack/ABPET
 ```
 
 ## Environment Setup
@@ -94,8 +80,6 @@ To install additional packages (e.g. if your approach needs `transformers` or `e
 ```bash
 pip install <package-name>
 ```
-
-> **Warning:** Do **not** reinstall or upgrade `torch`, `torchvision`, or any `cuda`-related package. The versions in `requirements.txt` are matched to the CUDA driver on the cluster. Upgrading them will likely break GPU support.
 
 ---
 
@@ -350,17 +334,6 @@ The unmodified starter code achieves the following on the validation set:
 
 Your goal is to beat this baseline. Lower MAE and higher Pearson r are better.
 
-## Submission
-
-Before the deadline, make sure your repository is in order:
-
-1. Your best checkpoint is saved at `checkpoints/best_model.pt`
-2. `predict.sh` has your team's venv path hardcoded (replace the `.venv` line)
-3. If you changed the model architecture, `predict.py` reflects it (see `# MODEL` markers)
-4. Test end-to-end: `bash predict.sh /projectnb/medaihack/ABPET/data/val.csv` should produce `predictions.csv` without errors
-
-The judges will clone your repository and run `predict.sh` against the held-out test set.
-
 ## Evaluation
 
 Models will be evaluated on a held-out test set. The judges will run:
@@ -383,13 +356,3 @@ Scoring metrics:
 
 * **Primary:** Mean Absolute Error (MAE) in centiloid units
 * **Secondary:** Pearson correlation coefficient between predicted and true centiloid scores
-
-## Tips
-
-* Run `eda/` first — every design choice in `abpet/model/petresnet.py` / `abpet/nn/losses.py` / `dev/train.py` is justified by an EDA finding (see `eda/README.md` §6 *Findings → Design*).
-* The centiloid distribution is right-skewed; the default `CentiloidLoss` (Huber + Pearson) handles this. Tune `--delta` (Huber) and `--alpha` (Huber/Pearson mix) per the IQR your EDA reports.
-* Tracer conditioning is non-optional here — `TracerNorm` and `FiLM` use the `TRACER.AMY` column; do not drop it from the dataloader.
-* Data is already in `[0, 1]` — feed straight into the network. The augmentation pipeline preserves this range.
-* 3D medical images are memory-heavy. Default `--batch_size 4` runs on a single GPU with AMP enabled (`use_amp=True` is automatic when CUDA is available).
-
-

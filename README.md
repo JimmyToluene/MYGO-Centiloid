@@ -1,9 +1,8 @@
 <p align="center">
-  <img src="figures/logos/mygo_centiloid_logo.svg" alt="MYGO-Centiloid Logo" width="320"/>
+  <img src="./figures/logos/mygo_centiloid_logo.svg" alt="MYGO-Centiloid Logo" width="200" style="margin-bottom: -20px;"/>
 </p>
 
 <h1 align="center">MYGO-Centiloid</h1>
-
 <p align="center">
   <b>M</b>ultitracer-conditioned 3D resnet18 for am<b>Y</b>loid β-PET centiloid re<b>G</b>ressi<b>O</b>n
 </p>

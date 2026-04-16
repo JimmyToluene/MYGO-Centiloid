@@ -52,7 +52,9 @@
 We predict continuous Centiloid scores from preprocessed 3D amyloid β-PET
 volumes (`(1, 128, 128, 128)`, four tracers: **FBP**, **FBB**, **NAV**, **PIB**),
 trained on the MedAI Spring 2026 Hackathon data (2,000 train + 500 val,
-NACC + A4 cohorts). The pipeline is specifically designed to handle the
+NACC + A4 cohorts). 
+
+The pipeline is specifically designed to handle the
 extreme right-skew and 64.8 % negative-class imbalance in the Centiloid
 distribution.
 
@@ -63,7 +65,7 @@ distribution.
 </p>
 
 Our model `PETResNet` combines:
-- **TracerNorm** — per-tracer learned (γ, β) intensity rescale at the input;
+- a **TracerNorm** — per-tracer learned (γ, β) intensity rescale at the input;
 - a **3D ResNet-18** backbone with **FiLM** conditioning at every residual stage;
 - a **tracer embedding** concatenated into our 3-layer regression head;
 - a **Huber + Pearson** combined loss trained with an inverse-frequency

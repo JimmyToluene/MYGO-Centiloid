@@ -357,8 +357,8 @@ def save_calibration_report(df, stats_df, out_dir):
 def main():
     parser = argparse.ArgumentParser(
         description="EDA 03 — Volume Intensity & Calibration Analysis")
-    parser.add_argument("--train_csv",  default="/projectnb/medaihack/ABPET/data/train.csv")
-    parser.add_argument("--val_csv",    default="/projectnb/medaihack/ABPET/data/val.csv")
+    parser.add_argument("--train_csv",  default="data/train.csv")
+    parser.add_argument("--val_csv",    default="data/val.csv")
     parser.add_argument("--out_dir",    default="results/eda/03_calibration_analysis")
     parser.add_argument("--n_samples",  type=int, default=50,
                         help="Volumes to sample per tracer (default=50)")

@@ -12,8 +12,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-TRAIN_CSV="${TRAIN_CSV:-/projectnb/medaihack/ABPET/data/train.csv}"
-VAL_CSV="${VAL_CSV:-/projectnb/medaihack/ABPET/data/val.csv}"
+TRAIN_CSV="${TRAIN_CSV:-$REPO_ROOT/data/train.csv}"
+VAL_CSV="${VAL_CSV:-$REPO_ROOT/data/val.csv}"
 CKPT_DIR="${CKPT_DIR:-$REPO_ROOT/checkpoints}"
 
 python3 "$SCRIPT_DIR/train.py" \

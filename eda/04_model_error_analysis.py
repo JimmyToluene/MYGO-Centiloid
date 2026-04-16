@@ -505,7 +505,7 @@ def save_error_report(df: pd.DataFrame, pred_csv: str | None, out_dir: str):
 def main():
     parser = argparse.ArgumentParser(
         description="EDA 04 — Model Error Analysis")
-    parser.add_argument("--val_csv",  default="/projectnb/medaihack/ABPET/data/val.csv")
+    parser.add_argument("--val_csv",  default="data/val.csv")
     parser.add_argument("--pred_csv", default=None,
                         help="Path to predictions.csv "
                              "(columns: ID, PREDICTED_CENTILOIDS)")

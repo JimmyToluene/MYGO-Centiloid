@@ -318,8 +318,8 @@ def save_tracer_summary(df: pd.DataFrame, out_dir: str):
 def main():
     parser = argparse.ArgumentParser(
         description="EDA 02 — Radiotracer Comparison Analysis")
-    parser.add_argument("--train_csv", default="/projectnb/medaihack/ABPET/data/train.csv")
-    parser.add_argument("--val_csv",   default="/projectnb/medaihack/ABPET/data/val.csv")
+    parser.add_argument("--train_csv", default="data/train.csv")
+    parser.add_argument("--val_csv",   default="data/val.csv")
     parser.add_argument("--out_dir",   default="results/eda/02_tracer_comparison")
     parser.add_argument("--n_slices",  type=int, default=3,
                         help="PET volumes per tracer to visualize")

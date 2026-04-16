@@ -122,8 +122,8 @@ the baseline path).
 All scripts default to:
 
 ```text
---train_csv  /projectnb/medaihack/ABPET/data/train.csv
---val_csv    /projectnb/medaihack/ABPET/data/val.csv
+--train_csv  data/train.csv
+--val_csv    data/val.csv
 --out_dir    results/eda/<script_name>/
 ```
 

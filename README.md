@@ -54,10 +54,8 @@ Our model `PETResNet` combines:
 - **Huber + Pearson** combined loss trained with an inverse-frequency
   `WeightedRandomSampler` over six Centiloid bins.
 
-We motivated every design decision with an empirical finding, documented
-in [`eda/`](eda/README.md) and recorded in each script's `Justifies:` header.
+>We motivated every design decision with an empirical finding, documented in [`eda/`](eda/README.md) and recorded in each script's `Justifies:` header.
 ---
-
 ## Contents
 
 1. [Results](#results)

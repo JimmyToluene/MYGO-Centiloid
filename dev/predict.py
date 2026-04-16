@@ -1,0 +1,96 @@
+"""
+Prediction script for Amyloid PET Centiloid Prediction.
+
+Usage:
+    python predict.py \
+        --csv        /projectnb/medaihack/ABPET/data/val.csv \
+        --checkpoint checkpoints/best_model.pt \
+        --output     predictions.csv
+"""
+
+import argparse
+import os, sys
+import torch
+from torch.utils.data import DataLoader
+
+# Make the top-level repo importable when running this script directly.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from abpet import PETDataset, PETResNet
+
+
+@torch.no_grad()
+def predict(model, loader, device):
+    model.eval()
+    all_preds = []
+
+    for batch in loader:
+        images, tracers = batch[0], batch[-1]
+        images  = images.to(device,  non_blocking=True)
+        tracers = tracers.to(device, non_blocking=True)
+
+        with torch.amp.autocast(device_type=device.type,
+                                enabled=(device.type == "cuda")):
+            preds = model(images, tracers)
+
+        all_preds.append(preds.cpu())
+
+    return torch.cat(all_preds).numpy()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--csv",         type=str, required=True)
+    parser.add_argument("--checkpoint",  type=str, required=True)
+    parser.add_argument("--output",      type=str, default="predictions.csv")
+    parser.add_argument("--batch_size",  type=int, default=4)
+    parser.add_argument("--num_workers", type=int, default=4)
+    args = parser.parse_args()
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Device: {device}\n")
+
+    # ── Load checkpoint ───────────────────────────────────────────────────
+    ckpt = torch.load(args.checkpoint, map_location=device, weights_only=False)
+
+    tracer_map   = ckpt["tracer_map"]
+    num_tracers  = ckpt["num_tracers"]
+    emb_dim      = ckpt.get("emb_dim", 32)          # default for new checkpoints
+    dropout_high = ckpt.get("dropout_high", 0.4)
+    dropout_low  = ckpt.get("dropout_low",  0.2)
+
+    # ── Dataset ───────────────────────────────────────────────────────────
+    dataset = PETDataset(args.csv, tracer_map=tracer_map)
+    loader  = DataLoader(
+        dataset, batch_size=args.batch_size, shuffle=False,
+        num_workers=args.num_workers, pin_memory=True,
+    )
+
+    # ── Model ─────────────────────────────────────────────────────────────
+    model = PETResNet(
+        num_tracers  = num_tracers,
+        emb_dim      = emb_dim,
+        dropout_high = dropout_high,
+        dropout_low  = dropout_low,
+    ).to(device)
+
+    # Strip torch.compile prefix if present
+    state_dict = {k.replace("_orig_mod.", ""): v
+                  for k, v in ckpt["model_state_dict"].items()}
+    model.load_state_dict(state_dict)
+    print(f"Loaded checkpoint from {args.checkpoint}\n")
+
+    # ── Predict ───────────────────────────────────────────────────────────
+    predictions = predict(model, loader, device)
+
+    out_df = dataset.df[["npy_path", "TRACER.AMY"]].copy()
+    if "ID" in dataset.df.columns:
+        out_df.insert(0, "ID", dataset.df["ID"])
+    out_df["PREDICTED_CENTILOIDS"] = predictions
+
+    out_df.to_csv(args.output, index=False)
+    print(f"Saved {len(out_df)} predictions → {args.output}")
+
+
+if __name__ == "__main__":
+    main()

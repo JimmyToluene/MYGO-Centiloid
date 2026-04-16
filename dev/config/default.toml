@@ -1,0 +1,33 @@
+# Default training configuration for `abpet`.
+#
+# Override any field by passing the matching --flag to dev/train.py,
+# or by editing this file and launching via dev/train.sh.
+
+[paths]
+train_csv      = "/projectnb/medaihack/ABPET/data/train.csv"
+val_csv        = "/projectnb/medaihack/ABPET/data/val.csv"
+checkpoint_dir = "checkpoints"
+
+[training]
+epochs        = 100
+batch_size    = 4
+num_workers   = 4
+lr            = 1e-4
+weight_decay  = 1e-4
+clip_grad     = 1.0
+patience      = 20
+seed          = 42
+
+[augmentation]
+enabled          = true
+per_tracer       = true              # STRONG for NAV/PIB; standard otherwise
+
+[loss]
+name  = "centiloid"                   # centiloid | huber | mse | mae
+delta = 25.0                          # Huber threshold (≈ IQR of CL)
+alpha = 0.7                           # mix: α·Huber + (1−α)·(1 − Pearson r)
+
+[model]
+emb_dim      = 32
+dropout_high = 0.4                    # after first FC in head
+dropout_low  = 0.2                    # after second FC in head

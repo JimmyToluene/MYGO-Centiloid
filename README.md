@@ -18,8 +18,8 @@
 <p align="center">
   <b>Team 25 — It's MYGO!!!!!!</b><br/>
   <a href="https://github.com/JimmyToluene">Jimmy Jia</a> ·
-  <a href="https://github.com/">Member 2</a> ·
-  <a href="https://github.com/">Member 3</a> ·
+  <a href="https://github.com/Yujie-Jessie">Yujie Hu</a> ·
+  <a href="https://github.com/ayiii-a">Zijiang Zhao</a> ·
   <a href="https://github.com/">Member 4</a>
 </p>
 

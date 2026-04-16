@@ -12,8 +12,9 @@ by the Kolachalama Lab, Boston University —
 
 This repository predicts continuous Centiloid scores from preprocessed
 3D amyloid β-PET volumes (`(1, 128, 128, 128)`, four tracers:
-**FBP**, **FBB**, **NAV**, **PIB**). The model — `PETResNet` — combines:
+**FBP**, **FBB**, **NAV**, **PIB**). 
 
+The model — `PETResNet` — combines:
 - **TracerNorm** — per-tracer learned (γ, β) intensity rescale at the input;
 - a **3D ResNet-18** backbone with **FiLM** conditioning at every residual stage;
 - a tracer embedding concatenated into a 3-layer regression head; and

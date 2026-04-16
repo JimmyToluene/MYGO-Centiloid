@@ -21,6 +21,8 @@
   <a href="https://github.com/Yujie-Jessie">Yujie Hu</a> ·
   <a href="https://github.com/ayiii-a">Zijiang Zhao</a> ·
   <a href="https://github.com/">Member 4</a>
+  <a href="https://github.com/">Member 5</a>
+  <a href="https://github.com/">Member 6</a>
 </p>
 
 <p align="center">
@@ -204,11 +206,22 @@ Input: (B, 1, 128, 128, 128) + tracer_id (B,)
 
 **Loss:** `CentiloidLoss = α · Huber(δ=25) + (1−α) · (1 − Pearson r)`, α = 0.7.
 
-**Training:** AdamW (lr=1e-4, wd=1e-4) + CosineAnnealingWarmRestarts (T₀=20, T_mult=2),
-AMP, gradient clipping (1.0), 6-bin WeightedRandomSampler, early stopping (patience=20).
+**Training**
 
-**Augmentation:** per-tracer strength — STRONG for NAV/PIB (n < 100), standard for FBP/FBB.
-RandFlipLR + RandAffine3D + RandGamma + RandBiasShift + RandGaussianNoise, all clamped to [0, 1].
+- **Optimizer:** AdamW (lr = 1e-4, weight decay = 1e-4)
+- **Scheduler:** CosineAnnealingWarmRestarts (T₀ = 20, T_mult = 2)
+- **Precision:** automatic mixed precision (AMP) via `torch.amp`
+- **Gradient clipping:** max norm 1.0
+- **Sampler:** 6-bin `WeightedRandomSampler` (inverse frequency over Centiloid bins)
+- **Early stopping:** patience = 20 epochs on val MAE
+
+**Augmentation** — per-tracer strength: **STRONG** for NAV / PIB (n < 100), **standard** for FBP / FBB. All transforms preserve `(1, 128, 128, 128)` shape and clamp to `[0, 1]`.
+
+- `RandFlipLR` — left–right flip (brain is bilaterally symmetric)
+- `RandAffine3D` — small rotation + translation
+- `RandGamma` — intensity gamma jitter
+- `RandBiasShift` — additive per-volume bias
+- `RandGaussianNoise` — voxel-wise Gaussian noise
 
 ---
 

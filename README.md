@@ -32,22 +32,6 @@
 </p>
 
 ---
-
-## Contents
-
-1. [Results](#results)
-2. [Quick start](#quick-start)
-3. [Repository Structure](#repository-structure)
-4. [Architecture](#architecture)
-5. [Data](#data)
-6. [Environment Setup](#environment-setup)
-7. [Outputs](#outputs)
-8. [Disclaimer](#disclaimer)
-9. [License](#license)
-10. [References](#references)
-
----
-
 We predict continuous Centiloid scores from preprocessed 3D amyloid β-PET
 volumes (`(1, 128, 128, 128)`, four tracers: **FBP**, **FBB**, **NAV**, **PIB**),
 trained on the MedAI Spring 2026 Hackathon data (2,000 train + 500 val,
@@ -72,6 +56,20 @@ Our model `PETResNet` combines:
 
 We motivated every design decision with an empirical finding, documented
 in [`eda/`](eda/README.md) and recorded in each script's `Justifies:` header.
+---
+
+## Contents
+
+1. [Results](#results)
+2. [Quick start](#quick-start)
+3. [Repository Structure](#repository-structure)
+4. [Architecture](#architecture)
+5. [Data](#data)
+6. [Environment Setup](#environment-setup)
+7. [Outputs](#outputs)
+8. [Disclaimer](#disclaimer)
+9. [License](#license)
+10. [References](#references)
 
 ---
 

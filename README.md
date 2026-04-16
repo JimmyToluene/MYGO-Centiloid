@@ -85,14 +85,52 @@ After `pip install -e .`, the public API is:
 from abpet import PETResNet, PETDataset, CentiloidLoss, get_criterion, build_train_transform
 ```
 
-## Quick demo
+## Quick start
 
-Verify a fresh checkout in under 5 seconds with the synthetic samples in
-`pseudodata/`:
+### 1. Link the data
+
+On BU SCC (one-liner — no copy, no disk cost):
+
+```bash
+ln -s /projectnb/medaihack/ABPET/data data
+```
+
+Outside SCC, place (or symlink) the dataset so the repo sees:
+
+```
+data/
+├── train.csv
+├── val.csv
+└── npy_files/
+```
+
+### 2. Install
+
+```bash
+pip install -r requirements.txt
+pip install -e .                    # makes `from abpet import ...` work
+```
+
+### 3. Demo (< 5 seconds, no real data needed)
 
 ```bash
 python demo_inference.py                                       # random init
 python demo_inference.py --checkpoint checkpoints/best_model.pt  # trained
+```
+
+### 4. Train → Predict → Evaluate
+
+```bash
+bash dev/train.sh                                              # uses dev/config/default.toml
+python dev/predict.py --csv data/val.csv --checkpoint checkpoints/best_model.pt --output predictions.csv
+python dev/evaluate.py --pred predictions.csv --gt data/val.csv
+```
+
+### 5. EDA suite (one click)
+
+```bash
+bash eda/run_all.sh                                            # baseline EDA
+bash eda/run_all.sh --pred_csv predictions.csv                 # + error analysis
 ```
 
 ## Environment Setup

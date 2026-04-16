@@ -1,6 +1,6 @@
-# MYGO
-
+# MYGO-Centiloid
 **M**ultitracer-conditioned 3D resNet for am**Y**loid β-PET centiloid re**G**ressi**O**n.
+
 
 Team25 **It's MYGO!!!!!!** — submission to the **MedAI Spring 2026 Hackathon** organized
 by the Kolachalama Lab, Boston University —

@@ -80,6 +80,8 @@ def main():
     model.load_state_dict(state_dict)
     print(f"Loaded checkpoint from {args.checkpoint}\n")
 
+    model.summary(input_size=(args.batch_size, 1, 128, 128, 128))
+
     # ── Predict ───────────────────────────────────────────────────────────
     predictions = predict(model, loader, device)
 

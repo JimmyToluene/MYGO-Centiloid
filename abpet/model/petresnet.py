@@ -22,7 +22,7 @@ class TracerNorm(nn.Module):
     """
     Learned per-tracer intensity normalization.
 
-    EDA: FBP images are visually much brighter than FBB / NAV / PIB.
+    EDA Finds: FBP images are visually much brighter than FBB / NAV / PIB.
     Applying a per-tracer (γ, β) normalizes each tracer's intensity
     distribution before any shared feature extraction.
 
@@ -219,6 +219,44 @@ class PETResNet(nn.Module):
         x = self.gap(x).flatten(1)               # (B, 512)
         x = torch.cat([x, t], dim=1)             # (B, 544)
         return self.head(x).squeeze(1)           # (B,)
+
+    def summary(self, input_size=(1, 1, 128, 128, 128), depth: int = 4) -> None:
+        """
+        Print a detailed architecture summary (per-layer shapes + param counts).
+
+        Uses `torchinfo` when available for rich output; falls back to the
+        built-in `print(self)` plus parameter totals otherwise.
+        """
+        bar = "=" * 88
+        print(bar)
+        print(f"{'PETResNet Architecture':^88}")
+        print(bar)
+
+        device      = next(self.parameters()).device
+        num_tracers = self.tracer_emb.num_embeddings
+        dummy_x     = torch.zeros(*input_size, device=device)
+        dummy_id    = torch.zeros(input_size[0], dtype=torch.long, device=device)
+
+        try:
+            from torchinfo import summary as _tsummary
+            _tsummary(
+                self,
+                input_data=(dummy_x, dummy_id),
+                depth=depth,
+                col_names=("input_size", "output_size", "num_params"),
+                row_settings=("depth", "var_names"),
+            )
+        except ImportError:
+            print(self)
+            total = sum(p.numel() for p in self.parameters())
+            train = sum(p.numel() for p in self.parameters() if p.requires_grad)
+            print("-" * 88)
+            print(f"Total parameters:     {total:,}")
+            print(f"Trainable parameters: {train:,}")
+            print(f"Num tracers:          {num_tracers}")
+            print("(Install torchinfo for per-layer shapes: pip install torchinfo)")
+
+        print(bar + "\n")
 
 
 # Backward-compatible alias — predict.py continues to work unchanged

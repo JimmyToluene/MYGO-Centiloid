@@ -241,8 +241,7 @@ def main():
         mean_centiloid = mean_cl,
     ).to(device)
 
-    n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f"PETResNet  |  trainable params: {n_params:,}\n")
+    model.summary(input_size=(args.batch_size, 1, 128, 128, 128))
 
     # ── Loss ──────────────────────────────────────────────────────────────
     loss_kwargs = {}

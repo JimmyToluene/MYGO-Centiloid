@@ -20,8 +20,8 @@
   <a href="https://github.com/JimmyToluene">Jimmy Jia</a> ·
   <a href="https://github.com/Yujie-Jessie">Yujie Hu</a> ·
   <a href="https://github.com/ayiii-a">Zijiang Zhao</a> ·
-  <a href="https://github.com/">Member 4</a> ·
-  <a href="https://github.com/">Member 5</a> ·
+  <a href="https://github.com/">Karthikayani Devaraj</a> ·
+  <a href="https://github.com/">Shruthi Ashok</a> ·
   <a href="https://github.com/">Member 6</a>
 </p>
 
@@ -362,29 +362,34 @@ Citations for the prior work that directly informed each MYGO component.
    Artistic Style. *ICLR* 2017. — conditional instance normalization,
    the conceptual precursor to our input-level `TracerNorm`.
    [arXiv:1610.07629](https://arxiv.org/abs/1610.07629)
+5. **Ioffe S, Szegedy C.** Batch Normalization: Accelerating Deep Network
+   Training by Reducing Internal Covariate Shift. *ICML* 2015. —
+   `BatchNorm3d` in the stem, every `ResBlock3D`, every downsample
+   shortcut, and `BatchNorm1d` in the regression head.
+   [arXiv:1502.03167](https://arxiv.org/abs/1502.03167)
 
 ### Loss and optimization
 
-5. **Huber PJ.** Robust Estimation of a Location Parameter. *Annals of
+6. **Huber PJ.** Robust Estimation of a Location Parameter. *Annals of
    Mathematical Statistics* 1964;35(1):73–101. — Huber term in
    `CentiloidLoss` with `δ=25` ≈ Centiloid IQR.
-6. **Loshchilov I, Hutter F.** Decoupled Weight Decay Regularization
+7. **Loshchilov I, Hutter F.** Decoupled Weight Decay Regularization
    (AdamW). *ICLR* 2019.
    [arXiv:1711.05101](https://arxiv.org/abs/1711.05101)
-7. **Loshchilov I, Hutter F.** SGDR: Stochastic Gradient Descent with
+8. **Loshchilov I, Hutter F.** SGDR: Stochastic Gradient Descent with
    Warm Restarts. *ICLR* 2017. — `CosineAnnealingWarmRestarts(T_0=20, T_mult=2)`.
    [arXiv:1608.03983](https://arxiv.org/abs/1608.03983)
-8. **Micikevicius P, et al.** Mixed Precision Training. *ICLR* 2018. —
+9. **Micikevicius P, et al.** Mixed Precision Training. *ICLR* 2018. —
    AMP autocast + GradScaler in `dev/train.py`.
    [arXiv:1710.03740](https://arxiv.org/abs/1710.03740)
-9. **Buda M, Maki A, Mazurowski MA.** A systematic study of the class
-   imbalance problem in convolutional neural networks.
-   *Neural Networks* 2018;106:249–259. — motivation for our six-bin
-   `WeightedRandomSampler` on Centiloid.
+10. **Buda M, Maki A, Mazurowski MA.** A systematic study of the class
+    imbalance problem in convolutional neural networks.
+    *Neural Networks* 2018;106:249–259. — motivation for our six-bin
+    `WeightedRandomSampler` on Centiloid.
 
 ### Medical-imaging augmentation
 
-10. **Pérez-García F, Sparks R, Ourselin S.** TorchIO: a Python library
+11. **Pérez-García F, Sparks R, Ourselin S.** TorchIO: a Python library
     for efficient loading, preprocessing, augmentation and patch-based
     sampling of medical images in deep learning. *Computer Methods and
     Programs in Biomedicine* 2021;208:106236. — reference for
@@ -394,24 +399,24 @@ Citations for the prior work that directly informed each MYGO component.
 
 ### Domain — amyloid PET and the Centiloid scale
 
-11. **Klunk WE, et al.** The Centiloid Project: standardizing
+12. **Klunk WE, et al.** The Centiloid Project: standardizing
     quantitative amyloid plaque estimation by PET. *Alzheimer's &
     Dementia* 2015;11(1):1–15. — the regression target; source of the
     positivity threshold (24.4 CL) used throughout `eda/`.
     [doi:10.1016/j.jalz.2014.07.003](https://doi.org/10.1016/j.jalz.2014.07.003)
-12. **Jagust WJ, et al.** The Alzheimer's Disease Neuroimaging Initiative
+13. **Jagust WJ, et al.** The Alzheimer's Disease Neuroimaging Initiative
     2 PET Core: 2015. *Alzheimer's & Dementia* 2015;11(7):757–771. —
     reference preprocessing pipeline for amyloid PET.
     [doi:10.1016/j.jalz.2015.05.001](https://doi.org/10.1016/j.jalz.2015.05.001)
 
 ### Related Kolachalama Lab work
 
-13. **Qiu S, et al.** Multimodal deep learning for Alzheimer's disease
+14. **Qiu S, et al.** Multimodal deep learning for Alzheimer's disease
     dementia assessment. *Nature Communications* 2022;13:3404. — the
     lab's 3D-CNN + fusion precedent for structural brain imaging.
     [doi:10.1038/s41467-022-31037-5](https://doi.org/10.1038/s41467-022-31037-5)
     · [vkola-lab/ncomms2022](https://github.com/vkola-lab/ncomms2022)
-14. **Kolachalama Lab.** AI-driven fusion of multimodal data for
+15. **Kolachalama Lab.** AI-driven fusion of multimodal data for
     Alzheimer's disease biomarker assessment. *Nature Communications*
     2025. — the lab's current amyloid/τ multimodal framework; its
     `image_processing/pet_pipeline.sh` is the upstream amyloid-PET

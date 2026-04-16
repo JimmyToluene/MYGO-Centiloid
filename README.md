@@ -216,9 +216,10 @@ Input: (B, 1, 128, 128, 128) + tracer_id (B,)
 - **Early stopping:** patience = 20 epochs on val MAE
 
 **Augmentation** 
-per-tracer strength: 
-**STRONG** for NAV / PIB (n < 100), **standard** for FBP / FBB. 
-All transforms preserve `(1, 128, 128, 128)` shape and clamp to `[0, 1]`.
+
+Per-tracer strength:
+1. **STRONG** for NAV / PIB (n < 100), **standard** for FBP / FBB. 
+2. All transforms preserve `(1, 128, 128, 128)` shape and clamp to `[0, 1]`.
 
 - `RandFlipLR` — left–right flip (brain is bilaterally symmetric)
 - `RandAffine3D` — small rotation + translation

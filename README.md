@@ -20,7 +20,7 @@
   <a href="https://github.com/JimmyToluene">Jimmy Jia</a> ·
   <a href="https://github.com/Yujie-Jessie">Yujie Hu</a> ·
   <a href="https://github.com/ayiii-a">Zijiang Zhao</a> ·
-  <a href="https://github.com/">Karthikayani Devaraj</a> ·
+  <a href="https://github.com/karthikayanidevaraj">Karthikayani Devaraj</a> ·
   <a href="https://github.com/">Shruthi Ashok</a> ·
   <a href="https://github.com/">Member 6</a>
 </p>

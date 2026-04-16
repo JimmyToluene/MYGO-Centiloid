@@ -10,25 +10,67 @@ by the Kolachalama Lab, Boston University —
   <img src="figures/architecture.png" width="900" alt="PETResNet architecture"/>
 </p>
 
-This repository predicts continuous Centiloid scores from preprocessed
-3D amyloid β-PET volumes (`(1, 128, 128, 128)`, four tracers:
-**FBP**, **FBB**, **NAV**, **PIB**). 
+We predict continuous Centiloid scores from preprocessed 3D amyloid β-PET
+volumes (`(1, 128, 128, 128)`, four tracers: **FBP**, **FBB**, **NAV**, **PIB**).
 
-The model — `PETResNet` — combines:
+Our model `PETResNet` combines:
 - **TracerNorm** — per-tracer learned (γ, β) intensity rescale at the input;
 - a **3D ResNet-18** backbone with **FiLM** conditioning at every residual stage;
-- a tracer embedding concatenated into a 3-layer regression head; and
+- a **tracer embedding** concatenated into our 3-layer regression head;
 - a **Huber + Pearson** combined loss trained with an inverse-frequency
   `WeightedRandomSampler` over six Centiloid bins.
 
-Every design decision is motivated by an empirical finding documented in
-[`eda/`](eda/README.md) and recorded in each script's `Justifies:` header.
+We motivated every design decision with an empirical finding, documented
+in [`eda/`](eda/README.md) and recorded in each script's `Justifies:` header.
 
 ## Overview
 
 Predict **centiloid scores** from preprocessed 3D amyloid PET brain scans. Centiloid is a standardized quantitative measure of amyloid-beta plaque burden in the brain and is a key biomarker for Alzheimer's disease. Higher centiloid values indicate greater amyloid deposition.
 
 **Task:** Given a preprocessed 3D PET volume and the radiotracer used, predict the continuous centiloid score.
+
+## Repository Structure
+
+```text
+MYGO/
+├── abpet/                        # Installable package
+│   ├── __init__.py                   re-exports public API
+│   ├── model/
+│   │   └── petresnet.py              PETResNet, BaselineCNN, TracerNorm, FiLMBlock
+│   ├── nn/
+│   │   └── losses.py                 CentiloidLoss, get_criterion
+│   └── data/
+│       ├── dataset.py                PETDataset
+│       └── augmentation.py           build_train_transform (per-tracer strength)
+│
+├── dev/                          # Runnable scripts + launcher + config
+│   ├── train.py                      AMP training loop, weighted sampler, CosineWR
+│   ├── predict.py                    loads checkpoint, writes predictions.csv
+│   ├── evaluate.py                   compares predictions vs ground truth
+│   ├── train.sh                      launcher (forwards env + CLI flags)
+│   └── config/default.toml           hyperparameter defaults
+│
+├── eda/                          # EDA suite — see eda/README.md
+│   ├── _common.py, 01_*.py, 02_*.py, 03_*.py, 04_*.py
+│   └── README.md
+│
+├── figures/                      # Hero diagram embedded in this README
+│   └── architecture.png
+├── pseudodata/                   # 4 synthetic samples (1 per tracer) for the demo
+├── checkpoints/                  # Created at train time (best_model.pt / last_model.pt)
+│
+├── demo_inference.py             # Root-level reviewer entry point
+├── predict.sh                    # Root-level judge entry point → dev/predict.py
+├── setup.py                      # `pip install -e .` to make `abpet` importable
+├── requirements.txt
+└── README.md
+```
+
+After `pip install -e .`, the public API is:
+
+```python
+from abpet import PETResNet, PETDataset, CentiloidLoss, get_criterion, build_train_transform
+```
 
 ## Quick demo
 
@@ -42,44 +84,51 @@ python demo_inference.py --checkpoint checkpoints/best_model.pt  # trained
 
 ## Environment Setup
 
-One person per team should create the team's virtual environment. All team members then activate it for their sessions.
+We developed MYGO on the BU SCC (`/projectnb/medaihack/team25/…`) under
+the `medaihack/spring-2026` module. The commands below reproduce the
+exact environment we used.
 
-### First-time setup
+### First-time setup (one-off per team member)
 
 ```bash
 module load medaihack/spring-2026
 module load python3/3.12.4
 
-# Replace YOUR_TEAM and venv_name with your team directory and preferred name
-virtualenv /projectnb/medaihack/YOUR_TEAM/venv_name
-source /projectnb/medaihack/YOUR_TEAM/venv_name/bin/activate
+virtualenv /projectnb/medaihack/team25/venv_name
+source   /projectnb/medaihack/team25/venv_name/bin/activate
+
+cd /projectnb/medaihack/team25/MYGO_MedAI/ABPET
 pip install -r requirements.txt
+pip install -e .                      # makes `abpet` importable
 ```
 
-### Subsequent sessions
-
-For terminal and batch scripts, include these three lines:
+### Reusing the environment (every session)
 
 ```bash
 module load medaihack/spring-2026
 module load python3/3.12.4
-source /projectnb/medaihack/YOUR_TEAM/venv_name/bin/activate
+source /projectnb/medaihack/team25/venv_name/bin/activate
 ```
 
-For **OnDemand** (Jupyter or Code Server): load the two modules in the module list, and place the `source` command in the pre-launch dialog box.
-
-To use your venv as a Jupyter kernel, run this once after activating it:
+For **OnDemand** (Jupyter / Code Server): load the two modules in the
+module list, and place the `source` command in the pre-launch dialog box.
+To expose the venv as a Jupyter kernel:
 
 ```bash
 python -m ipykernel install --user --name venv_name --display-name "Python (venv_name)"
 ```
 
-Then refresh JupyterLab and select **Python (venv_name)** from the kernel list.
+### Outside BU SCC
 
-To install additional packages (e.g. if your approach needs `transformers` or `einops`):
+To run MYGO on another machine (Linux + CUDA 12.9 recommended):
 
 ```bash
-pip install <package-name>
+git clone https://github.com/<your-user>/mygo-centiloid.git
+cd mygo-centiloid
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .
+python demo_inference.py              # 4-sample smoke test, <5 s
 ```
 
 ---
@@ -173,49 +222,6 @@ Each volume is independently normalized to the `[0, 1]` range:
 
 ```python
 img = (img - img.min()) / (img.max() - img.min())
-```
-
-## Repository Structure
-
-```text
-MYGO/
-├── abpet/                        # Installable package
-│   ├── __init__.py                   re-exports public API
-│   ├── model/
-│   │   └── petresnet.py              PETResNet, BaselineCNN, TracerNorm, FiLMBlock
-│   ├── nn/
-│   │   └── losses.py                 CentiloidLoss, get_criterion
-│   └── data/
-│       ├── dataset.py                PETDataset
-│       └── augmentation.py           build_train_transform (per-tracer strength)
-│
-├── dev/                          # Runnable scripts + launcher + config
-│   ├── train.py                      AMP training loop, weighted sampler, CosineWR
-│   ├── predict.py                    loads checkpoint, writes predictions.csv
-│   ├── evaluate.py                   compares predictions vs ground truth
-│   ├── train.sh                      launcher (forwards env + CLI flags)
-│   └── config/default.toml           hyperparameter defaults
-│
-├── eda/                          # EDA suite — see eda/README.md
-│   ├── _common.py, 01_*.py, 02_*.py, 03_*.py, 04_*.py
-│   └── README.md
-│
-├── figures/                      # Hero diagram embedded in this README
-│   └── architecture.png
-├── pseudodata/                   # 4 synthetic samples (1 per tracer) for the demo
-├── checkpoints/                  # Created at train time (best_model.pt / last_model.pt)
-│
-├── demo_inference.py             # Root-level reviewer entry point
-├── predict.sh                    # Root-level judge entry point → dev/predict.py
-├── setup.py                      # `pip install -e .` to make `abpet` importable
-├── requirements.txt
-└── README.md
-```
-
-After `pip install -e .`, the public API is:
-
-```python
-from abpet import PETResNet, PETDataset, CentiloidLoss, get_criterion, build_train_transform
 ```
 
 ## Getting Started
@@ -321,39 +327,58 @@ After running `predict.py` and `evaluate.py`:
 | `predictions.csv` | Columns: `ID`, `npy_path`, `TRACER.AMY`, `PREDICTED_CENTILOIDS` |
 | (console) `evaluate.py` | MSE / RMSE / MAE / Pearson r — overall and per tracer |
 
-## Baseline Performance
+## Results
 
-The unmodified starter code achieves the following on the validation set:
+We compared our `PETResNet` against the unmodified starter baseline on
+the validation set. Our goal was to improve MAE across all tracers while
+preserving Pearson r on the small NAV subset.
+
+**Starter baseline** (unmodified, for reference):
 
 | Tracer | N | MAE (CL) | Pearson r |
 | ------ | --- | -------- | --------- |
-| **ALL** | 500 | **19.77** | **0.790** |
+| **ALL** | 500 | 19.77 | 0.790 |
 | FBP | 236 | 19.28 | 0.797 |
 | FBB | 114 | 20.04 | 0.804 |
 | PIB | 133 | 21.17 | 0.790 |
 | NAV | 17  | 13.86 | 0.946 |
 
-Your goal is to beat this baseline. Lower MAE and higher Pearson r are better.
+**MYGO — ours** (to fill in with final numbers):
+
+| Tracer | N | MAE (CL) | Pearson r |
+| ------ | --- | -------- | --------- |
+| **ALL** | 500 | **_TBD_** | **_TBD_** |
+| FBP | 236 | _TBD_ | _TBD_ |
+| FBB | 114 | _TBD_ | _TBD_ |
+| PIB | 133 | _TBD_ | _TBD_ |
+| NAV | 17  | _TBD_ | _TBD_ |
 
 ## Evaluation
 
-Models will be evaluated on a held-out test set. The judges will run:
+Our model was evaluated on the held-out test set with the judge harness:
 
 ```bash
 bash predict.sh <test.csv> <checkpoint.pt> predictions.csv
 ```
 
-To test your own predictions on the validation set:
+We reproduced our validation numbers with:
 
 ```bash
-cd /projectnb/medaihack/ABPET/medaihack/ABPET
-source /projectnb/medaihack/YOUR_TEAM/venv_name/bin/activate
-python dev/predict.py --csv /projectnb/medaihack/ABPET/data/val.csv --checkpoint checkpoints/best_model.pt --output predictions.csv
+cd /projectnb/medaihack/team25/MYGO_MedAI/ABPET
+source /projectnb/medaihack/team25/venv_name/bin/activate
+python dev/predict.py \
+    --csv /projectnb/medaihack/ABPET/data/val.csv \
+    --checkpoint checkpoints/best_model.pt \
+    --output predictions.csv
+python dev/evaluate.py --pred predictions.csv \
+    --gt /projectnb/medaihack/ABPET/data/val.csv
 ```
 
-This calls `dev/predict.py`, which must output a CSV with a `PREDICTED_CENTILOIDS` column. **If you replace `BaselineCNN` with your own model, you must update the import and model instantiation in `dev/predict.py`** (marked with `# MODEL`). Make sure `predict.sh` points to your best checkpoint.
+`dev/predict.py` writes a CSV with the `PREDICTED_CENTILOIDS` column. Our
+trained weights live at `checkpoints/best_model.pt`, loaded by both
+`predict.sh` (judge harness) and `demo_inference.py` (reviewer smoke test).
 
-Scoring metrics:
+Scoring metrics used by the judges:
 
 * **Primary:** Mean Absolute Error (MAE) in centiloid units
 * **Secondary:** Pearson correlation coefficient between predicted and true centiloid scores

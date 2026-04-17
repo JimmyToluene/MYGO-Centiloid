@@ -108,9 +108,9 @@ pip install -e .
 # 3. Demo (< 5 sec, synthetic data, no checkpoint needed)
 python demo_inference.py
 
-# 4. Train → Predict → Evaluate
-bash dev/train.sh
-python dev/predict.py --csv data/val.csv --checkpoint checkpoints/best_model.pt
+# 4. Train → Predict → Evaluate  (configs in dev/config/*.yaml)
+bash dev/train.sh                                          # uses dev/config/train.yaml
+python dev/predict.py --config dev/config/predict.yaml
 python dev/evaluate.py --pred results/predictions.csv --gt data/val.csv
 
 # 5. EDA
@@ -141,8 +141,10 @@ MYGO-Centiloid/
 │   ├── train.py                      training loop (AMP, weighted sampler, CosineWR)
 │   ├── predict.py                    inference → results/predictions.csv
 │   ├── evaluate.py                   MAE / RMSE / Pearson r report
-│   ├── train.sh                      launcher (env + CLI flags)
-│   └── config/default.toml           hyperparameter defaults
+│   ├── train.sh                      launcher (single --config arg)
+│   └── config/
+│       ├── train.yaml                all training hyperparameters
+│       └── predict.yaml              inference paths + batch settings
 │
 ├── eda/                          # EDA suite (see eda/README.md)
 │   ├── 01-03_*.py                    pre-train: distribution, tracer, calibration

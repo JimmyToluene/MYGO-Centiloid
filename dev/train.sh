@@ -2,22 +2,16 @@
 # dev/train.sh — launcher for dev/train.py
 # ─────────────────────────────────────────
 # Usage:
-#     bash dev/train.sh                               # uses config/default.toml values
-#     bash dev/train.sh --epochs 50 --batch_size 8    # override flags are forwarded
+#     bash dev/train.sh                               # uses dev/config/train.yaml
+#     bash dev/train.sh dev/config/train_freeze.yaml  # custom config
 #
-# Defaults match dev/config/default.toml; edit that file for persistent changes.
+# Every knob (paths, hyperparameters, loss, model variant, freeze_tracer_norm)
+# lives in the YAML — edit that file, don't add CLI flags.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-TRAIN_CSV="${TRAIN_CSV:-$REPO_ROOT/data/train.csv}"
-VAL_CSV="${VAL_CSV:-$REPO_ROOT/data/val.csv}"
-CKPT_DIR="${CKPT_DIR:-$REPO_ROOT/checkpoints}"
+CONFIG="${1:-$SCRIPT_DIR/config/train.yaml}"
 
-python3 "$SCRIPT_DIR/train.py" \
-    --train_csv      "$TRAIN_CSV" \
-    --val_csv        "$VAL_CSV" \
-    --checkpoint_dir "$CKPT_DIR" \
-    "$@"
+python3 "$SCRIPT_DIR/train.py" --config "$CONFIG"

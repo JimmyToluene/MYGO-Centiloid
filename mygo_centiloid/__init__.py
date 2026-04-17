@@ -11,13 +11,15 @@ Public API (all callers should import from here, not from submodules):
 
 from mygo_centiloid.data.dataset      import PETDataset
 from mygo_centiloid.data.augmentation import build_train_transform
-from mygo_centiloid.model.petresnet   import PETResNet, BaselineCNN
-from mygo_centiloid.losses.losses         import CentiloidLoss, get_criterion
+from mygo_centiloid.model.petresnet          import PETResNet, BaselineCNN
+from mygo_centiloid.model.petresnet_no_film  import PETResNetNoFiLM
+from mygo_centiloid.losses.losses             import CentiloidLoss, get_criterion
 
 __all__ = [
     "PETDataset",
     "build_train_transform",
     "PETResNet",
+    "PETResNetNoFiLM",
     "BaselineCNN",
     "CentiloidLoss",
     "get_criterion",

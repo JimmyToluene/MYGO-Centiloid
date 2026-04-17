@@ -23,7 +23,7 @@ from torch.utils.data import DataLoader, WeightedRandomSampler
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mygo_centiloid import PETDataset, PETResNet, get_criterion
+from mygo_centiloid import PETDataset, PETResNet, PETResNetNoFiLM, get_criterion
 
 try:
     from mygo_centiloid import build_train_transform
@@ -149,6 +149,10 @@ def main():
     parser.add_argument("--alpha", type=float, default=0.7)
 
     # Model
+    parser.add_argument("--model",        default="petresnet",
+                        choices=["petresnet", "petresnet_no_film"],
+                        help="Architecture. `petresnet_no_film` is the FiLM"
+                             "+tracer-embedding ablation (TracerNorm kept).")
     parser.add_argument("--emb_dim",      type=int,   default=32)
     parser.add_argument("--dropout_high", type=float, default=0.4)
     parser.add_argument("--dropout_low",  type=float, default=0.2)
@@ -233,13 +237,22 @@ def main():
     mean_cl     = float(train_ds.centiloids.mean())
     num_tracers = len(train_ds.tracer_map)
 
-    model = PETResNet(
-        num_tracers    = num_tracers,
-        emb_dim        = args.emb_dim,
-        dropout_high   = args.dropout_high,
-        dropout_low    = args.dropout_low,
-        mean_centiloid = mean_cl,
-    ).to(device)
+    if args.model == "petresnet":
+        model = PETResNet(
+            num_tracers    = num_tracers,
+            emb_dim        = args.emb_dim,
+            dropout_high   = args.dropout_high,
+            dropout_low    = args.dropout_low,
+            mean_centiloid = mean_cl,
+        ).to(device)
+    else:  # petresnet_no_film — ablation (no FiLM, no tracer embedding)
+        model = PETResNetNoFiLM(
+            num_tracers    = num_tracers,
+            dropout_high   = args.dropout_high,
+            dropout_low    = args.dropout_low,
+            mean_centiloid = mean_cl,
+        ).to(device)
+    print(f"Model: {args.model}\n")
 
     model.summary(input_size=(args.batch_size, 1, 128, 128, 128))
 
@@ -286,6 +299,7 @@ def main():
             "val_r":            val_r,
             "tracer_map":       train_ds.tracer_map,
             "num_tracers":      num_tracers,
+            "model":            args.model,
             "emb_dim":          args.emb_dim,
             "dropout_high":     args.dropout_high,
             "dropout_low":      args.dropout_low,

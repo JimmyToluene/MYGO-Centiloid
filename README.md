@@ -41,7 +41,7 @@ The pipeline is specifically designed to handle the
 extreme right-skew and 64.8 % negative-class imbalance in the Centiloid
 distribution.
 
-> **Val set:** MAE **11.73 CL** · Pearson r **0.936** — a **40.7 %** MAE reduction over the starter baseline (19.77 CL).
+> **Val set:** MAE **11.73 CL** Pearson r **0.936** — a **40.7 %** MAE reduction over the starter baseline (19.77 CL).
 
 <p align="center">
   <img src="figures/architecture/pet_resnet-v2.png" width="900" alt="PETResNet architecture"/>
@@ -83,13 +83,13 @@ the validation set (n = 500).
 
 **Per-tracer breakdown:**
 
-| Tracer | N | Baseline MAE | **MYGO MAE** | Baseline r | **MYGO r** |
-| ------ | --- | ---------- | ------------ | ---------- | ---------- |
-| **ALL** | 500 | 19.77 | **11.73** | 0.790 | **0.936** |
-| FBP | 236 | 19.28 | **11.49** | 0.797 | **0.930** |
-| FBB | 114 | 20.04 | **12.37** | 0.804 | **0.933** |
-| PIB | 133 | 21.17 | **11.94** | 0.790 | **0.939** |
-| NAV | 17  | 13.86 | **9.28** | 0.946 | **0.981** |
+| Tracer | N | Baseline 3D CNN MAE | **MYGO MAE** | Baseline 3D CNN r | **MYGO r** |
+| ------ | --- |---------------------| ------------ |-------------------| ---------- |
+| **ALL** | 500 | 19.77               | **11.73** | 0.790             | **0.936** |
+| FBP | 236 | 19.28               | **11.49** | 0.797             | **0.930** |
+| FBB | 114 | 20.04               | **12.37** | 0.804             | **0.933** |
+| PIB | 133 | 21.17               | **11.94** | 0.790             | **0.939** |
+| NAV | 17  | 13.86               | **9.28** | 0.946             | **0.981** |
 
 **Improvement:** MAE 19.77 → 11.73 (−8.04 CL, **40.7 % reduction**); Pearson r 0.790 → 0.936.
 
@@ -177,13 +177,13 @@ from abpet import PETResNet, PETDataset, CentiloidLoss, get_criterion, build_tra
 Input: (B, 1, 128, 128, 128) + tracer_id (B,)
           │
           ▼
-    TracerNorm            per-tracer learned (γ, β)
+     TracerNorm            per-tracer learned (γ, β)
           │
           ▼
     Stem: Conv3d(1→64, 7³, s=2) → BN → ReLU → MaxPool3d(s=2)
           │                                                     TracerEmbedding
           ▼                                                       (4 → 32)
-    Stage 1: ResBlock×2 (s=1) + FiLM  →  (B,  64, 32, 32, 32)     │
+    Stage 1: ResBlock×2 (s=1) + FiLM  →  (B,  64, 32, 32, 32)  ◄──┤
     Stage 2: ResBlock×2 (s=2) + FiLM  →  (B, 128, 16, 16, 16)  ◄──┤
     Stage 3: ResBlock×2 (s=2) + FiLM  →  (B, 256,  8,  8,  8)  ◄──┤
     Stage 4: ResBlock×2 (s=2) + FiLM  →  (B, 512,  4,  4,  4)  ◄──┘
@@ -203,7 +203,8 @@ Input: (B, 1, 128, 128, 128) + tracer_id (B,)
     Centiloid prediction (B,)
 ```
 
-**Loss:** `CentiloidLoss = α · Huber(δ=25) + (1−α) · (1 − Pearson r)`, α = 0.7.
+**Loss:** 
+`CentiloidLoss = α · Huber(δ=25) + (1−α) · (1 − Pearson r)`, α = 0.7.
 
 **Training**
 

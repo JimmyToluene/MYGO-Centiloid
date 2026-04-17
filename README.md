@@ -63,11 +63,10 @@ Our model `PETResNet` combines:
 3. [Repository Structure](#repository-structure)
 4. [Architecture](#architecture)
 5. [Data](#data)
-6. [Environment Setup](#environment-setup)
-7. [Outputs](#outputs)
-8. [Disclaimer](#disclaimer)
-9. [License](#license)
-10. [References](#references)
+6. [Outputs](#outputs)
+7. [Disclaimer](#disclaimer)
+8. [License](#license)
+9. [References](#references)
 
 ---
 
@@ -97,6 +96,35 @@ the validation set (n = 500).
 
 ## Quick start
 
+---
+
+### Environment Setup
+#### BU SCC
+```bash
+module load medaihack/spring-2026
+module load python3/3.12.4
+
+# Create venv (one-time)
+virtualenv /projectnb/medaihack/team25/<your_venv_name>
+source /projectnb/medaihack/team25/<your_venv_name>/bin/activate
+
+cd /projectnb/medaihack/team25/MYGO-Centiloid
+pip install -r requirements.txt
+pip install -e .
+```
+
+For **OnDemand** (Jupyter / Code Server): load the two modules in the
+module list and place the `source` command in the pre-launch dialog box.
+
+#### Outside BU SCC
+
+```bash
+git clone https://github.com/<your-user>/mygo-centiloid.git
+cd mygo-centiloid
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt && pip install -e .
+python demo_inference.py    # smoke test, < 5 sec
+```
 ```bash
 # 1. Link data (BU SCC — one-liner, no copy)
 ln -s /projectnb/medaihack/ABPET/data data
@@ -125,7 +153,6 @@ data/
 ├── val.csv
 └── npy_files/
 ```
-
 ---
 
 ## Repository Structure
@@ -277,46 +304,6 @@ any of these). The following steps were applied in order:
 7. **Dynamic frame averaging** — multi-frame PET → single static volume.
 8. **Shape enforcement** — final center-crop/pad to `(1, 128, 128, 128)`.
 9. **Min-max normalization** — `img = (img - img.min()) / (img.max() - img.min())`.
-
----
-
-## Environment Setup
-
-### BU SCC
-
-```bash
-module load medaihack/spring-2026
-module load python3/3.12.4
-
-# Create venv (one-time)
-virtualenv /projectnb/medaihack/team25/venv_name
-source /projectnb/medaihack/team25/venv_name/bin/activate
-
-cd /projectnb/medaihack/team25/MYGO-Centiloid
-pip install -r requirements.txt
-pip install -e .
-```
-
-Every subsequent session:
-```bash
-module load medaihack/spring-2026
-module load python3/3.12.4
-source /projectnb/medaihack/team25/venv_name/bin/activate
-```
-
-For **OnDemand** (Jupyter / Code Server): load the two modules in the
-module list and place the `source` command in the pre-launch dialog box.
-
-### Outside BU SCC
-
-```bash
-git clone https://github.com/<your-user>/mygo-centiloid.git
-cd mygo-centiloid
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt && pip install -e .
-python demo_inference.py    # smoke test, < 5 sec
-```
-
 ---
 
 ## Outputs

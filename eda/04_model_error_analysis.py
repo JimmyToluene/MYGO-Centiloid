@@ -176,15 +176,15 @@ def plot_predicted_vs_actual(df: pd.DataFrame, out_dir: str):
 
         r, _  = stats.pearsonr(df["CENTILOIDS"], df["PREDICTED_CENTILOIDS"])
         mae   = df["abs_error"].mean()
-        ax.text(0.05, 0.95,
+        ax.text(0.97, 0.03,
                 f"MAE={mae:.2f} CL\nPearson r={r:.3f}\nn={len(df)}",
-                transform=ax.transAxes, va="top", fontsize=11,
+                transform=ax.transAxes, va="bottom", ha="right", fontsize=11,
                 bbox=dict(fc="white", ec="gray", alpha=0.8))
 
         ax.set_xlim(lim); ax.set_ylim(lim)
         ax.set_xlabel("Actual Centiloid (CL)")
         ax.set_ylabel("Predicted Centiloid (CL)")
-        ax.legend(fontsize=9)
+        ax.legend(fontsize=9, loc="upper left", framealpha=0.9)
         ax.set_aspect("equal")
 
     plt.tight_layout()

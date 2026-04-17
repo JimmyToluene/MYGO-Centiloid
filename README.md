@@ -96,8 +96,6 @@ the validation set (n = 500).
 
 ## Quick start
 
----
-
 ### Environment Setup
 #### BU SCC
 ```bash
@@ -125,6 +123,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt && pip install -e .
 python demo_inference.py    # smoke test, < 5 sec
 ```
+### Usage
 ```bash
 # 1. Link data (BU SCC — one-liner, no copy)
 ln -s /projectnb/medaihack/ABPET/data data

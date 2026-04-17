@@ -1,4 +1,4 @@
-"""Installable package metadata for `abpet`.
+"""Installable package metadata for `mygo_centiloid`.
 
 Install in editable mode during development:
 
@@ -8,11 +8,11 @@ Install in editable mode during development:
 from setuptools import setup, find_packages
 
 setup(
-    name             = "abpet",
+    name             = "mygo_centiloid",
     version          = "0.1.0",
     description      = "Amyloid β-PET Centiloid prediction — MedAI Spring 2026 Hackathon.",
     url              = "https://github.com/vkola-lab/medaihack",
-    packages         = find_packages(include=["abpet", "abpet.*"]),
+    packages         = find_packages(include=["mygo_centiloid", "mygo_centiloid.*"]),
     python_requires  = ">=3.10",
     install_requires = [
         "numpy>=1.26",

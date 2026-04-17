@@ -1,4 +1,4 @@
-# Default training configuration for `abpet`.
+# Default training configuration for `mygo_centiloid`.
 #
 # Override any field by passing the matching --flag to dev/train.py,
 # or by editing this file and launching via dev/train.sh.

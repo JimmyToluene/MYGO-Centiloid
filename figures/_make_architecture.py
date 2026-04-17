@@ -78,7 +78,7 @@ ax.axis("off")
 
 # Title
 ax.text(W / 2, H - 0.25,
-        "PETResNet — TracerNorm + FiLM-conditioned 3D ResNet-18 for Centiloid Regression",
+        "mygo_centiloid — TracerNorm + FiLM-conditioned 3D ResNet-18 for Centiloid Regression",
         ha="center", fontsize=12.5, fontweight="bold", color="#0D47A1")
 
 # Stack of boxes (top → bottom)

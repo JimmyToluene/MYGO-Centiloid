@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 # Make the top-level repo importable when running this script directly.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from abpet import PETDataset, PETResNet
+from mygo_centiloid import PETDataset, PETResNet
 
 
 @torch.no_grad()

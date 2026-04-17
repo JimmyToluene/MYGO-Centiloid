@@ -23,10 +23,10 @@ from torch.utils.data import DataLoader, WeightedRandomSampler
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from abpet import PETDataset, PETResNet, get_criterion
+from mygo_centiloid import PETDataset, PETResNet, get_criterion
 
 try:
-    from abpet import build_train_transform
+    from mygo_centiloid import build_train_transform
 except ImportError:
     build_train_transform = None
 
@@ -117,7 +117,7 @@ def validate(model, loader, device):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Train PETResNet")
+    parser = argparse.ArgumentParser(description="Train mygo_centiloid")
 
     # Paths
     parser.add_argument("--train_csv",      required=True)

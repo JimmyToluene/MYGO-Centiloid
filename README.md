@@ -165,8 +165,9 @@ MYGO-Centiloid/
 ```
 
 After `pip install -e .`:
+
 ```python
-from abpet import PETResNet, PETDataset, CentiloidLoss, get_criterion, build_train_transform
+from mygo_centiloid import PETResNet, PETDataset, CentiloidLoss, get_criterion, build_train_transform
 ```
 
 ---

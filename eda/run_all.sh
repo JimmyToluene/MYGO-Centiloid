@@ -6,6 +6,7 @@
 #     bash eda/run_all.sh --pred_csv predictions.csv     # pre-train + post-train (01–04)
 #     bash eda/run_all.sh --post_only --pred_csv predictions.csv  # post-train only (04)
 #     bash eda/run_all.sh --cohort_csv data/cohort.csv   # include cohort plots in 03
+#     bash eda/run_all.sh --tag baseline_no_film         # stamp all figures with label+UTC time
 #
 # Outputs:
 #     results/eda/pre_train/01_centiloid_distribution/
@@ -27,6 +28,7 @@ N_SLICES="${N_SLICES:-3}"
 PRED_CSV=""
 COHORT_CSV=""
 POST_ONLY=false
+TAG=""
 
 # ── Parse flags ───────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -38,10 +40,17 @@ while [[ $# -gt 0 ]]; do
         --cohort_csv)  COHORT_CSV="$2";  shift 2 ;;
         --n_samples)   N_SAMPLES="$2";   shift 2 ;;
         --n_slices)    N_SLICES="$2";    shift 2 ;;
+        --tag)         TAG="$2";         shift 2 ;;
         --post_only)   POST_ONLY=true;   shift 1 ;;
         *) echo "Unknown flag: $1"; exit 1 ;;
     esac
 done
+
+# Common tag arg for every script invocation below
+TAG_ARG=""
+if [[ -n "$TAG" ]]; then
+    TAG_ARG="--tag $TAG"
+fi
 
 PRE_DIR="$OUT_ROOT/pre_train"
 POST_DIR="$OUT_ROOT/post_train"
@@ -55,6 +64,7 @@ echo "  pre_train  : $PRE_DIR"
 echo "  post_train : $POST_DIR"
 echo "  pred_csv   : ${PRED_CSV:-<none — post-train skipped>}"
 echo "  cohort_csv : ${COHORT_CSV:-<none — cohort plots skipped>}"
+echo "  tag        : ${TAG:-<auto — derived per script>}"
 echo "  post_only  : $POST_ONLY"
 echo "============================================================"
 echo ""
@@ -74,6 +84,7 @@ if [[ "$POST_ONLY" == false ]]; then
         --train_csv "$TRAIN_CSV" \
         --val_csv   "$VAL_CSV" \
         --out_dir   "$PRE_DIR/01_centiloid_distribution" \
+        $TAG_ARG \
         || { echo "  ✗ FAILED"; FAILED=$((FAILED+1)); }
     RAN=$((RAN+1))
     echo ""
@@ -85,6 +96,7 @@ if [[ "$POST_ONLY" == false ]]; then
         --val_csv   "$VAL_CSV" \
         --out_dir   "$PRE_DIR/02_tracer_comparison" \
         --n_slices  "$N_SLICES" \
+        $TAG_ARG \
         || { echo "  ✗ FAILED"; FAILED=$((FAILED+1)); }
     RAN=$((RAN+1))
     echo ""
@@ -101,6 +113,7 @@ if [[ "$POST_ONLY" == false ]]; then
         --out_dir    "$PRE_DIR/03_calibration_analysis" \
         --n_samples  "$N_SAMPLES" \
         $COHORT_ARG \
+        $TAG_ARG \
         || { echo "  ✗ FAILED"; FAILED=$((FAILED+1)); }
     RAN=$((RAN+1))
     echo ""
@@ -118,6 +131,7 @@ if [[ -n "$PRED_CSV" ]]; then
         --val_csv   "$VAL_CSV" \
         --pred_csv  "$PRED_CSV" \
         --out_dir   "$POST_DIR/04_model_error_analysis" \
+        $TAG_ARG \
         || { echo "  ✗ FAILED"; FAILED=$((FAILED+1)); }
     RAN=$((RAN+1))
     echo ""

@@ -48,9 +48,9 @@ distribution.
 </p>
 
 Our model `PETResNet` combines:
-- **TracerNorm** — per-tracer learned (γ, β) intensity rescale at the input;
 - **3D ResNet-18** backbone with **FiLM** conditioning at every residual stage;
-- **tracer embedding** concatenated into our 3-layer regression head;
+- **TracerNorm** — per-tracer learned (γ, β) intensity rescale at the input;
+- **Tracer embedding** concatenated into our 3-layer regression head;
 - **Huber + Pearson** combined loss trained with an inverse-frequency
   `WeightedRandomSampler` over six Centiloid bins.
 

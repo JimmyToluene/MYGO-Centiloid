@@ -76,10 +76,10 @@ Our model `PETResNet` combines:
 We compared our `PETResNet` against the unmodified starter baseline on
 the validation set (n = 500).
 
-| | Starter baseline | **MYGO (ours)** |
-|---|---|---|
-| **Overall MAE** | 19.77 CL | **11.73 CL** |
-| **Overall Pearson r** | 0.790 | **0.936** |
+| | 3D CNN baseline | **MYGO (ours)** |
+|---|-----------------|---|
+| **Overall MAE** | 19.77 CL        | **11.73 CL** |
+| **Overall Pearson r** | 0.790           | **0.936** |
 
 **Per-tracer breakdown:**
 

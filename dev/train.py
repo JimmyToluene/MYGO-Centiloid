@@ -24,6 +24,9 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mygo_centiloid import PETDataset, PETResNet, PETResNetNoFiLM, get_criterion
+from mygo_centiloid.utils import (
+    make_run_dir, write_config, write_metrics, append_epoch, append_registry,
+)
 
 try:
     from mygo_centiloid import build_train_transform
@@ -122,7 +125,13 @@ def main():
     # Paths
     parser.add_argument("--train_csv",      required=True)
     parser.add_argument("--val_csv",        required=True)
-    parser.add_argument("--checkpoint_dir", default="checkpoints")
+    parser.add_argument("--checkpoint_dir", default=None,
+                        help="Where to save best/last checkpoints. "
+                             "Defaults to <run_dir>/checkpoints/.")
+    parser.add_argument("--run_name",       default=None,
+                        help="Run folder name under logs/. "
+                             "Defaults to <UTC-stamp>_<model>_train.")
+    parser.add_argument("--log_dir",        default="logs")
 
     # Training
     parser.add_argument("--epochs",       type=int,   default=100)
@@ -166,7 +175,17 @@ def main():
     device  = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     use_amp = device.type == "cuda"
     print(f"Device: {device}  |  AMP: {use_amp}\n")
+
+    # ── Run folder + registry setup ───────────────────────────────────────
+    run_dir = make_run_dir(
+        run_type="train", model=args.model,
+        base=args.log_dir, run_name=args.run_name,
+    )
+    if args.checkpoint_dir is None:
+        args.checkpoint_dir = str(run_dir / "checkpoints")
     os.makedirs(args.checkpoint_dir, exist_ok=True)
+    write_config(run_dir, {"run_type": "train", **vars(args)})
+    print(f"Run dir: {run_dir}\n")
 
     # ── Datasets ──────────────────────────────────────────────────────────
     # Load training dataset first (no transform yet — need tracer_map first)
@@ -290,6 +309,11 @@ def main():
         lr = optimizer.param_groups[0]["lr"]
 
         print(f"{epoch:>6} | {train_loss:>11.4f} | {val_mae:>8.2f} | {val_r:>10.4f} | {lr:>9.2e}")
+        append_epoch(run_dir, {
+            "epoch": epoch, "train_loss": f"{train_loss:.6f}",
+            "val_mae": f"{val_mae:.4f}", "val_r": f"{val_r:.4f}",
+            "lr": f"{lr:.3e}",
+        })
 
         ckpt = {
             "epoch":            epoch,
@@ -319,6 +343,29 @@ def main():
                 break
 
     print(f"\nDone. Best Val MAE: {best_mae:.2f} CL  |  checkpoint: {best_ckpt}")
+
+    # ── Final summary to run folder + global registry ─────────────────────
+    final_metrics = {
+        "run_type":      "train",
+        "model":         args.model,
+        "best_val_mae":  best_mae,
+        "best_val_r":    val_r,
+        "epochs_run":    epoch,
+        "early_stopped": patience_cnt >= args.patience,
+        "best_ckpt":     best_ckpt,
+        "last_ckpt":     last_ckpt,
+    }
+    write_metrics(run_dir, final_metrics)
+    append_registry({
+        "type":    "train",
+        "model":   args.model,
+        "run_dir": str(run_dir),
+        "ckpt":    best_ckpt,
+        "metrics": {"best_val_mae": best_mae, "best_val_r": val_r,
+                    "epochs_run": epoch},
+        "config":  {"batch_size": args.batch_size, "lr": args.lr,
+                    "seed": args.seed, "loss": args.loss},
+    })
 
 
 if __name__ == "__main__":

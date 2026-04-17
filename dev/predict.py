@@ -16,7 +16,10 @@ from torch.utils.data import DataLoader
 # Make the top-level repo importable when running this script directly.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mygo_centiloid import PETDataset, PETResNet
+from mygo_centiloid import PETDataset, PETResNet, PETResNetNoFiLM
+from mygo_centiloid.utils import (
+    make_run_dir, write_config, write_metrics, append_registry,
+)
 
 
 @torch.no_grad()
@@ -45,6 +48,8 @@ def main():
     parser.add_argument("--output",      type=str, default="results/predictions.csv")
     parser.add_argument("--batch_size",  type=int, default=4)
     parser.add_argument("--num_workers", type=int, default=4)
+    parser.add_argument("--run_name",    type=str, default=None)
+    parser.add_argument("--log_dir",     type=str, default="logs")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -55,9 +60,18 @@ def main():
 
     tracer_map   = ckpt["tracer_map"]
     num_tracers  = ckpt["num_tracers"]
-    emb_dim      = ckpt.get("emb_dim", 32)          # default for new checkpoints
+    model_name   = ckpt.get("model", "petresnet")   # back-compat for old ckpts
+    emb_dim      = ckpt.get("emb_dim", 32)
     dropout_high = ckpt.get("dropout_high", 0.4)
     dropout_low  = ckpt.get("dropout_low",  0.2)
+
+    # ── Run folder + registry setup ───────────────────────────────────────
+    run_dir = make_run_dir(
+        run_type="predict", model=model_name,
+        base=args.log_dir, run_name=args.run_name,
+    )
+    write_config(run_dir, {"run_type": "predict", "model": model_name, **vars(args)})
+    print(f"Run dir: {run_dir}\n")
 
     # ── Dataset ───────────────────────────────────────────────────────────
     dataset = PETDataset(args.csv, tracer_map=tracer_map)
@@ -66,13 +80,21 @@ def main():
         num_workers=args.num_workers, pin_memory=True,
     )
 
-    # ── Model ─────────────────────────────────────────────────────────────
-    model = PETResNet(
-        num_tracers  = num_tracers,
-        emb_dim      = emb_dim,
-        dropout_high = dropout_high,
-        dropout_low  = dropout_low,
-    ).to(device)
+    # ── Model (dispatch on checkpoint's recorded architecture) ────────────
+    if model_name == "petresnet_no_film":
+        model = PETResNetNoFiLM(
+            num_tracers  = num_tracers,
+            dropout_high = dropout_high,
+            dropout_low  = dropout_low,
+        ).to(device)
+    else:
+        model = PETResNet(
+            num_tracers  = num_tracers,
+            emb_dim      = emb_dim,
+            dropout_high = dropout_high,
+            dropout_low  = dropout_low,
+        ).to(device)
+    print(f"Model: {model_name}\n")
 
     # Strip torch.compile prefix if present
     state_dict = {k.replace("_orig_mod.", ""): v
@@ -93,6 +115,24 @@ def main():
     os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
     out_df.to_csv(args.output, index=False)
     print(f"Saved {len(out_df)} predictions → {args.output}")
+
+    # ── Registry ──────────────────────────────────────────────────────────
+    metrics = {
+        "run_type":   "predict",
+        "model":      model_name,
+        "n_samples":  int(len(out_df)),
+        "checkpoint": args.checkpoint,
+        "output":     args.output,
+    }
+    write_metrics(run_dir, metrics)
+    append_registry({
+        "type":    "predict",
+        "model":   model_name,
+        "run_dir": str(run_dir),
+        "ckpt":    args.checkpoint,
+        "output":  args.output,
+        "metrics": {"n_samples": int(len(out_df))},
+    })
 
 
 if __name__ == "__main__":

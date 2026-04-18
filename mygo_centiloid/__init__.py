@@ -14,6 +14,7 @@ from mygo_centiloid.data.augmentation import build_train_transform
 from mygo_centiloid.model.petresnet_film          import PETResNet, BaselineCNN
 from mygo_centiloid.model.petresnet_no_film  import PETResNetNoFiLM
 from mygo_centiloid.model.petresnet_attn     import PETResNetAttn, SpatialAttention3D
+from mygo_centiloid.model.petresnet_attn_gated import PETResNetAttnGated, SpatialAttention3DGated
 from mygo_centiloid.losses.losses             import CentiloidLoss, get_criterion
 
 __all__ = [
@@ -23,6 +24,8 @@ __all__ = [
     "PETResNetNoFiLM",
     "PETResNetAttn",
     "SpatialAttention3D",
+    "PETResNetAttnGated",
+    "SpatialAttention3DGated",
     "BaselineCNN",
     "CentiloidLoss",
     "get_criterion",

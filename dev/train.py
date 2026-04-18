@@ -28,7 +28,7 @@ from torch.utils.data import DataLoader, WeightedRandomSampler
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mygo_centiloid import PETDataset, PETResNet, PETResNetNoFiLM, get_criterion
+from mygo_centiloid import PETDataset, PETResNet, PETResNetNoFiLM, PETResNetAttn, get_criterion
 from mygo_centiloid.utils import (
     make_run_dir, write_config, write_metrics, append_epoch, append_registry,
 )
@@ -244,6 +244,14 @@ def main():
             dropout_low    = M["dropout_low"],
             mean_centiloid = mean_cl,
         ).to(device)
+    elif M["name"] == "petresnet_attn":
+        model = PETResNetAttn(
+            num_tracers      = num_tracers,
+            dropout_high     = M["dropout_high"],
+            dropout_low      = M["dropout_low"],
+            mean_centiloid   = mean_cl,
+            attention_kernel = M.get("attention_kernel", 7),
+        ).to(device)
     else:
         raise ValueError(f"Unknown model.name: {M['name']!r}")
     print(f"Model: {M['name']}")
@@ -314,6 +322,7 @@ def main():
             "dropout_high":       M["dropout_high"],
             "dropout_low":        M["dropout_low"],
             "freeze_tracer_norm": M["freeze_tracer_norm"],
+            "attention_kernel":   M.get("attention_kernel", 7),
         }
         torch.save(ckpt, last_ckpt)
 

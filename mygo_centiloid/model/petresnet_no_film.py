@@ -22,7 +22,7 @@ routed to TracerNorm only.
 import torch
 import torch.nn as nn
 
-from mygo_centiloid.model.petresnet import TracerNorm, ResBlock3D
+from mygo_centiloid.model.petresnet_film import TracerNorm, ResBlock3D
 
 
 class PETResNetNoFiLM(nn.Module):

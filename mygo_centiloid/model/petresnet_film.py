@@ -229,7 +229,7 @@ class PETResNet(nn.Module):
         """
         bar = "=" * 88
         print(bar)
-        print(f"{'PETResNet Architecture':^88}")
+        print(f"{'mygo_centiloid Architecture':^88}")
         print(bar)
 
         device      = next(self.parameters()).device

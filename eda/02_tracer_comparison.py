@@ -37,7 +37,7 @@ from itertools import combinations
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _common import (
     AMYLOID_POS_THRESHOLD, TRACER_ORDER, TRACER_NAMES, TRACER_COLORS,
-    setup_style, log,
+    setup_style, set_run_tag, log,
 )
 
 setup_style()
@@ -325,9 +325,14 @@ def main():
     parser.add_argument("--out_dir",   default="results/eda/pre_train/02_tracer_comparison")
     parser.add_argument("--n_slices",  type=int, default=3,
                         help="PET volumes per tracer to visualize")
+    parser.add_argument("--tag",       default=None,
+                        help="Label stamped on every figure "
+                             "(e.g. run/experiment name). "
+                             "Defaults to basename(out_dir).")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
+    set_run_tag(args.tag or os.path.basename(args.out_dir.rstrip("/\\")))
     print(f"\n{'#'*55}")
     print("  EDA 02 — Radiotracer Comparison Analysis")
     print(f"  Output → {args.out_dir}")

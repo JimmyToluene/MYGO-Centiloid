@@ -53,7 +53,7 @@ from scipy import stats
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _common import (
     AMYLOID_POS_THRESHOLD, TRACER_ORDER, TRACER_COLORS,
-    setup_style, log,
+    setup_style, set_run_tag, log,
 )
 
 setup_style()
@@ -176,15 +176,15 @@ def plot_predicted_vs_actual(df: pd.DataFrame, out_dir: str):
 
         r, _  = stats.pearsonr(df["CENTILOIDS"], df["PREDICTED_CENTILOIDS"])
         mae   = df["abs_error"].mean()
-        ax.text(0.05, 0.95,
+        ax.text(0.97, 0.03,
                 f"MAE={mae:.2f} CL\nPearson r={r:.3f}\nn={len(df)}",
-                transform=ax.transAxes, va="top", fontsize=11,
+                transform=ax.transAxes, va="bottom", ha="right", fontsize=11,
                 bbox=dict(fc="white", ec="gray", alpha=0.8))
 
         ax.set_xlim(lim); ax.set_ylim(lim)
         ax.set_xlabel("Actual Centiloid (CL)")
         ax.set_ylabel("Predicted Centiloid (CL)")
-        ax.legend(fontsize=9)
+        ax.legend(fontsize=9, loc="upper left", framealpha=0.9)
         ax.set_aspect("equal")
 
     plt.tight_layout()
@@ -514,9 +514,20 @@ def main():
                         help="Path to predictions.csv "
                              "(columns: ID, PREDICTED_CENTILOIDS)")
     parser.add_argument("--out_dir",  default="results/eda/post_train/04_model_error_analysis")
+    parser.add_argument("--tag",      default=None,
+                        help="Label stamped on every figure "
+                             "(e.g. run/experiment name). "
+                             "Defaults to basename(pred_csv) or basename(out_dir).")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
+    # For post-train analysis the pred_csv identifies the model/run; fall back
+    # to the output folder name otherwise (e.g. naive-baseline invocations).
+    default_tag = (
+        os.path.splitext(os.path.basename(args.pred_csv))[0]
+        if args.pred_csv else os.path.basename(args.out_dir.rstrip("/\\"))
+    )
+    set_run_tag(args.tag or default_tag)
     print(f"\n{'#'*55}")
     print("  EDA 04 — Model Error Analysis")
     print(f"  Val CSV  → {args.val_csv}")

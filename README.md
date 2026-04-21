@@ -16,12 +16,12 @@
 
 <p align="center">
   <b>Team 25 — It's MYGO!!!!!!</b><br/>
-  <a href="https://github.com/JimmyToluene">Jimmy Jia</a> ·
+  <a href="https://github.com/JimmyToluene">Haozhe Jia</a> ·
   <a href="https://github.com/Yujie-Jessie">Yujie Hu</a> ·
   <a href="https://github.com/ayiii-a">Zijiang Zhao</a> ·
   <a href="https://github.com/karthikayanidevaraj">Karthikayani Devaraj</a> ·
-  <a href="https://github.com/">Shruthi Ashok</a> ·
-  <a href="https://github.com/">Member 6</a>
+  Shruthi Ashok ·
+  Sathvika Mallavarapu
 </p>
 
 <p align="center">
@@ -32,42 +32,45 @@
 </p>
 
 ---
-We predict continuous Centiloid scores from preprocessed 3D amyloid β-PET
+Our team predict continuous Centiloid scores from preprocessed 3D amyloid β-PET
 volumes (`(1, 128, 128, 128)`, four tracers: **FBP**, **FBB**, **NAV**, **PIB**),
-trained on the MedAI Spring 2026 Hackathon data (2,000 train + 500 val,
+trained on the MedAI Spring 2026 Hackathon Challenge 2 data (2,000 train + 500 val,
 NACC + A4 cohorts). 
 
 The pipeline is specifically designed to handle the
 extreme right-skew and 64.8 % negative-class imbalance in the Centiloid
 distribution.
 
-> **Val set:** MAE **11.73 CL** · Pearson r **0.936** — a **40.7 %** MAE reduction over the starter baseline (19.77 CL).
+> **Val set (leaderboard, final):** MAE **11.7916 CL** — a **40.4 %** MAE reduction over the 3D CNN baseline (19.77 CL) provided by the hackathon organizers. Pearson r (internal) = 0.936.
 
 <p align="center">
-  <img src="figures/architecture/pet_resnet-v1.png" width="900" alt="PETResNet architecture"/>
+  <img src="figures/architecture/pet_resnet_film.png" width="900" alt="PETResNet architecture"/>
 </p>
 
 Our model `PETResNet` combines:
-- **TracerNorm** — per-tracer learned (γ, β) intensity rescale at the input;
 - **3D ResNet-18** backbone with **FiLM** conditioning at every residual stage;
-- **tracer embedding** concatenated into our 3-layer regression head;
+- **TracerNorm** per-tracer learned (γ, β) intensity rescale, which we subsequently found to parallel the per-tracer affine structure of published Centiloid calibration equations (Klunk et al. 2015; Navitsky et al. 2018; Rowe et al. 2016, 2017)
+- **Tracer embedding** concatenated into our 3-layer regression head;
 - **Huber + Pearson** combined loss trained with an inverse-frequency
   `WeightedRandomSampler` over six Centiloid bins.
 
->We motivated every design decision with an empirical finding, documented in [`eda/`](eda/README.md) and recorded in each script's `Justifies:` header.
+> We motivated every design decision with an empirical finding, documented in [`eda/`](eda/README.md) and recorded in each script's `Justifies:` header.
+
 ---
+
 ## Contents
 
 1. [Results](#results)
-2. [Quick start](#quick-start)
-3. [Repository Structure](#repository-structure)
-4. [Architecture](#architecture)
-5. [Data](#data)
-6. [Environment Setup](#environment-setup)
+2. [Ongoing Work](#ongoing-work) → [`ablations/`](ablations/README.md)
+3. [Quick start](#quick-start)
+4. [Repository Structure](#repository-structure)
+5. [Architecture](#architecture)
+6. [Data](#data)
 7. [Outputs](#outputs)
-8. [Disclaimer](#disclaimer)
-9. [License](#license)
-10. [References](#references)
+8. [Submission & Evaluation](#submission--evaluation)
+9. [Disclaimer](#disclaimer)
+10. [License](#license)
+11. [References](#references)
 
 ---
 
@@ -76,44 +79,110 @@ Our model `PETResNet` combines:
 We compared our `PETResNet` against the unmodified starter baseline on
 the validation set (n = 500).
 
-| | Starter baseline | **MYGO (ours)** |
-|---|---|---|
-| **Overall MAE** | 19.77 CL | **11.73 CL** |
-| **Overall Pearson r** | 0.790 | **0.936** |
+| | 3D CNN baseline | **MYGO (ours)** |
+|---|-----------------|---|
+| **Overall MAE (leaderboard, final)** | 19.77 CL | **11.7916 CL** |
+| **Overall Pearson r (internal)** | 0.790 | **0.936** |
 
-**Per-tracer breakdown:**
+**Improvement:** MAE 19.77 → 11.79 (−7.98 CL, **40.4 % reduction**).
 
-| Tracer | N | Baseline MAE | **MYGO MAE** | Baseline r | **MYGO r** |
-| ------ | --- | ---------- | ------------ | ---------- | ---------- |
-| **ALL** | 500 | 19.77 | **11.73** | 0.790 | **0.936** |
-| FBP | 236 | 19.28 | **11.49** | 0.797 | **0.930** |
-| FBB | 114 | 20.04 | **12.37** | 0.804 | **0.933** |
-| PIB | 133 | 21.17 | **11.94** | 0.790 | **0.939** |
-| NAV | 17  | 13.86 | **9.28** | 0.946 | **0.981** |
+**Per-tracer breakdown (internal `dev/evaluate.py`):**
 
-**Improvement:** MAE 19.77 → 11.73 (−8.04 CL, **40.7 % reduction**); Pearson r 0.790 → 0.936.
+| Tracer | N | Baseline 3D CNN MAE | **MYGO MAE** | Baseline 3D CNN r | **MYGO r** |
+| ------ | --- |---------------------| ------------ |-------------------| ---------- |
+| **ALL** | 500 | 19.77               | **11.73** | 0.790             | **0.936** |
+| FBP | 236 | 19.28               | **11.49** | 0.797             | **0.930** |
+| FBB | 114 | 20.04               | **12.37** | 0.804             | **0.933** |
+| PIB | 133 | 21.17               | **11.94** | 0.790             | **0.939** |
+| NAV | 17  | 13.86               | **9.28** | 0.946             | **0.981** |
+
+> Per-tracer rows are from our internal eval script (weighted average
+> 11.73). \
+> The **final** competition score is the leaderboard number
+> (**11.7916 CL**); the 0.06 CL delta reflects differences in the
+> scoring scripts and is expected.
+
+---
+## Ongoing Work
+
+Following the hackathon, we conducted systematic ablations to better
+understand which architectural choices drove the competition result.
+All numbers in this section are from internal `dev/evaluate.py` so that
+ablations are compared apples-to-apples against the same scorer; the
+**final** competition result is the leaderboard 11.7916 CL reported
+above. Two findings are being prepared as a separate technical report:
+
+- **Tracer conditioning ablation.** Removing per-layer FiLM and head-level
+  tracer embedding (while retaining input-level TracerNorm) improves
+  internal validation MAE from 11.73 → 9.03 CL. This is consistent with
+  the tracer-agnostic design of the Centiloid scale: once per-tracer
+  intensity calibration is handled at the input (TracerNorm), further
+  per-layer conditioning introduces shortcut learning rather than useful
+  signal.
+
+- **Spatial attention extension.** Adding CBAM-style spatial attention at
+  stage 4 (analogous to the Klunk CTX target VOI) accelerates early
+  convergence by ~2× but does not improve final accuracy in this
+  configuration (10.02 CL internal). We interpret this as evidence that
+  the backbone already learns region-selectivity implicitly on 2k samples.
+
+Details, per-tracer breakdowns, and seed ablations are tracked in
+[`ablations/`](ablations/). The competition submission (`PETResNet` with
+FiLM + tracer embedding, **leaderboard MAE 11.7916 CL**) remains the
+canonical reference reported above.
 
 ---
 
 ## Quick start
 
+### Environment Setup
+#### BU SCC
+```bash
+module load medaihack/spring-2026
+module load python3/3.12.4
+
+# Create venv (one-time) — name must match the path hardcoded in predict.sh
+virtualenv /projectnb/medaihack/team25/venv_name
+source /projectnb/medaihack/team25/venv_name/bin/activate
+
+git clone https://github.com/vkola-lab/medaihack.git
+cd medaihack/ABPET
+pip install -r requirements.txt
+pip install -e .
+```
+
+> If you prefer a different venv name, update both this command **and**
+> line 28 of `predict.sh` so the judges' inference script activates the
+> right environment.
+
+For **OnDemand** (Jupyter / Code Server): load the two modules in the
+module list and place the `source` command in the pre-launch dialog box.
+
+#### Outside BU SCC
+
+```bash
+git clone https://github.com/vkola-lab/medaihack.git
+cd medaihack/ABPET
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt && pip install -e .
+```
+### Usage
+
+Environment Setup above already handled `pip install`. From here:
+
 ```bash
 # 1. Link data (BU SCC — one-liner, no copy)
 ln -s /projectnb/medaihack/ABPET/data data
 
-# 2. Install
-pip install -r requirements.txt
-pip install -e .
-
-# 3. Demo (< 5 sec, synthetic data, no checkpoint needed)
-python demo_inference.py
-
-# 4. Train → Predict → Evaluate
-bash dev/train.sh
-python dev/predict.py --csv data/val.csv --checkpoint checkpoints/best_model.pt
+# 2. Train → Predict → Evaluate  (configs in dev/config/*.yaml)
+bash dev/train.sh                                          # uses dev/config/train.yaml
+python dev/predict.py --config dev/config/predict.yaml
 python dev/evaluate.py --pred results/predictions.csv --gt data/val.csv
 
-# 5. EDA
+# 3. End-to-end inference (judge entry point)
+bash predict.sh data/val.csv checkpoints/best_model.pt predictions.csv
+
+# 4. EDA
 bash eda/run_all.sh                                        # pre-train (01-03)
 bash eda/run_all.sh --pred_csv results/predictions.csv     # + post-train (04)
 ```
@@ -126,47 +195,77 @@ data/
 └── npy_files/
 ```
 
+See [`ablations/`](ablations/README.md) for post-hoc studies (No-FiLM
+variant, stage-4 attention) that are not part of the canonical submission.
+
+For an in-browser demo dashboard — upload a `.npy` PET volume and view
+axial / coronal / sagittal slices alongside the model's prediction —
+open [`front_end/index.html`](front_end/index.html). Pure static HTML +
+JS, no server. This is optional and not on the evaluation path.
+
 ---
 
 ## Repository Structure
 
 ```text
-MYGO-Centiloid/
-├── abpet/                        # Installable Python package
-│   ├── model/petresnet.py            PETResNet, TracerNorm, FiLMBlock, ResBlock3D
-│   ├── nn/losses.py                  CentiloidLoss, get_criterion
-│   └── data/                         PETDataset, build_train_transform
+ABPET/
+├── mygo_centiloid/               # Installable Python package
+│   ├── model/                        PETResNet (+ FiLM / attn variants)
+│   │   ├── petresnet_film.py         canonical model (TracerNorm + FiLM)
+│   │   ├── petresnet_no_film.py      ablation: TracerNorm only
+│   │   ├── petresnet_attn.py         ablation: CBAM spatial attention
+│   │   └── petresnet_attn_gated.py   ablation: gated attention
+│   ├── losses/losses.py              CentiloidLoss, get_criterion
+│   ├── data/dataset.py               PETDataset
+│   ├── data/augmentation.py          build_train_transform (per-tracer strength)
+│   └── utils/run_logger.py           training logger
 │
-├── dev/                          # Runnable scripts + config
+├── dev/                          # Runnable scripts + config (canonical pipeline)
 │   ├── train.py                      training loop (AMP, weighted sampler, CosineWR)
-│   ├── predict.py                    inference → results/predictions.csv
+│   ├── predict.py                    inference → predictions.csv
 │   ├── evaluate.py                   MAE / RMSE / Pearson r report
-│   ├── train.sh                      launcher (env + CLI flags)
-│   └── config/default.toml           hyperparameter defaults
+│   ├── train.sh                      launcher (single --config arg)
+│   ├── experimental_fet/
+│   │   └── gradcam.py                HiResCAM over axial / coronal / sagittal slices
+│   └── config/
+│       ├── train.yaml                canonical training hyperparameters
+│       └── predict.yaml              inference paths + batch settings
+│
+├── ablations/                    # Post-hackathon studies (see ablations/README.md)
+│   ├── README.md                     index + headline results
+│   ├── configs/
+│   │   ├── train_no_tracernorm.yaml  No-FiLM / TracerNorm-only variant
+│   │   ├── stage3_attn.yaml          + stage-4 CBAM attention
+│   │   └── stage3_attn_gated.yaml    residual / zero-init attention
+│   ├── scripts/
+│   │   ├── ablate_tracer_norm.py     toggle TracerNorm → identity at inference
+│   │   ├── inspect_tracer_norm.py    dump learned γ / β per tracer
+│   │   └── inspect_attention.py      render attention maps over PET slices
+│   └── studies/
+│       ├── tracer_conditioning.md    No-FiLM write-up
+│       └── attention_study.md        stage-4 CBAM write-up
 │
 ├── eda/                          # EDA suite (see eda/README.md)
-│   ├── 01-03_*.py                    pre-train: distribution, tracer, calibration
-│   ├── 04_*.py                       post-train: model error analysis
+│   ├── 01_centiloid_distribution.py  pre-train: target distribution
+│   ├── 02_tracer_comparison.py       pre-train: per-tracer intensity profiles
+│   ├── 03_calibration_analysis.py    pre-train: tracer ↔ Centiloid calibration
+│   ├── 04_model_error_analysis.py    post-train: residuals + failure modes
 │   └── run_all.sh                    one-click runner
 │
-├── results/                      # All outputs land here
-│   ├── predictions.csv               from dev/predict.py
-│   └── eda/{pre_train,post_train}/   from eda/run_all.sh
-│
-├── checkpoints/                  # best_model.pt + last_model.pt
 ├── figures/                      # architecture diagram + logo
-├── pseudodata/                   # 4 synthetic samples for demo
+├── front_end/                    # optional static HTML dashboard — upload .npy, view slices + CL prediction
 │
-├── demo_inference.py             # reviewer entry point
 ├── predict.sh                    # judge entry point → dev/predict.py
 ├── setup.py                      # pip install -e .
 ├── requirements.txt
+├── LICENSE
 └── README.md
 ```
 
 After `pip install -e .`:
+
 ```python
-from abpet import PETResNet, PETDataset, CentiloidLoss, get_criterion, build_train_transform
+from mygo_centiloid import PETResNet, PETDataset, CentiloidLoss, get_criterion, build_train_transform
 ```
 
 ---
@@ -177,13 +276,13 @@ from abpet import PETResNet, PETDataset, CentiloidLoss, get_criterion, build_tra
 Input: (B, 1, 128, 128, 128) + tracer_id (B,)
           │
           ▼
-    TracerNorm            per-tracer learned (γ, β)
+     TracerNorm            per-tracer learned (γ, β)
           │
           ▼
     Stem: Conv3d(1→64, 7³, s=2) → BN → ReLU → MaxPool3d(s=2)
           │                                                     TracerEmbedding
           ▼                                                       (4 → 32)
-    Stage 1: ResBlock×2 (s=1) + FiLM  →  (B,  64, 32, 32, 32)     │
+    Stage 1: ResBlock×2 (s=1) + FiLM  →  (B,  64, 32, 32, 32)  ◄──┤
     Stage 2: ResBlock×2 (s=2) + FiLM  →  (B, 128, 16, 16, 16)  ◄──┤
     Stage 3: ResBlock×2 (s=2) + FiLM  →  (B, 256,  8,  8,  8)  ◄──┤
     Stage 4: ResBlock×2 (s=2) + FiLM  →  (B, 512,  4,  4,  4)  ◄──┘
@@ -203,7 +302,12 @@ Input: (B, 1, 128, 128, 128) + tracer_id (B,)
     Centiloid prediction (B,)
 ```
 
-**Loss:** `CentiloidLoss = α · Huber(δ=25) + (1−α) · (1 − Pearson r)`, α = 0.7.
+**Footprint:** ~33.4 M trainable parameters (3D ResNet-18 backbone
+dominates; TracerNorm + FiLM + head ≈ 0.2 M). Fits on a single
+NVIDIA L40S at `batch_size=4` with AMP enabled.
+
+**Loss:** 
+`CentiloidLoss = α · Huber(δ=25) + (1−α) · (1 − Pearson r)`, α = 0.7.
 
 **Training**
 
@@ -213,6 +317,7 @@ Input: (B, 1, 128, 128, 128) + tracer_id (B,)
 - **Gradient clipping:** max norm 1.0
 - **Sampler:** 6-bin `WeightedRandomSampler` (inverse frequency over Centiloid bins)
 - **Early stopping:** patience = 20 epochs on val MAE
+- **Schedule:** 100 epochs, batch size 4, ≈ 500 iters / epoch on the 2,000-sample train split.
 
 **Augmentation** 
 
@@ -276,45 +381,6 @@ any of these). The following steps were applied in order:
 
 ---
 
-## Environment Setup
-
-### BU SCC
-
-```bash
-module load medaihack/spring-2026
-module load python3/3.12.4
-
-# Create venv (one-time)
-virtualenv /projectnb/medaihack/team25/venv_name
-source /projectnb/medaihack/team25/venv_name/bin/activate
-
-cd /projectnb/medaihack/team25/MYGO-Centiloid
-pip install -r requirements.txt
-pip install -e .
-```
-
-Every subsequent session:
-```bash
-module load medaihack/spring-2026
-module load python3/3.12.4
-source /projectnb/medaihack/team25/venv_name/bin/activate
-```
-
-For **OnDemand** (Jupyter / Code Server): load the two modules in the
-module list and place the `source` command in the pre-launch dialog box.
-
-### Outside BU SCC
-
-```bash
-git clone https://github.com/<your-user>/mygo-centiloid.git
-cd mygo-centiloid
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt && pip install -e .
-python demo_inference.py    # smoke test, < 5 sec
-```
-
----
-
 ## Outputs
 
 All outputs are organized under `results/` and `checkpoints/`:
@@ -337,6 +403,37 @@ checkpoints/
 
 Each EDA folder contains `*.png` figures and a `*.txt` summary report
 with auditable numbers.
+
+---
+
+## Submission & Evaluation
+
+Our submission follows the hackathon's standard entry point. Judges
+clone the repo and run:
+
+```bash
+bash predict.sh <test.csv> <checkpoint.pt> predictions.csv
+```
+
+`predict.sh` activates our team venv at
+`/projectnb/medaihack/team25/venv_name/bin/activate` and calls
+`dev/predict.py` with the provided CSV and checkpoint. The output
+`predictions.csv` contains `ID`, `npy_path`, `TRACER.AMY`, and
+`PREDICTED_CENTILOIDS` columns.
+
+**Scoring metrics** (same as the hackathon baseline):
+
+* **Primary:** Mean Absolute Error (MAE) in centiloid units
+* **Secondary:** Pearson correlation coefficient
+
+**Checklist for reproducibility:**
+
+1. Best checkpoint at `checkpoints/best_model.pt` (lowest val MAE).
+2. `predict.sh` has the team venv path hardcoded (line 28).
+3. `dev/predict.py` instantiates `PETResNet` from
+   `mygo_centiloid.model.petresnet_film`.
+4. Smoke test: `bash predict.sh data/val.csv checkpoints/best_model.pt predictions.csv`
+   produces a 500-row CSV without errors.
 
 ---
 
@@ -364,8 +461,9 @@ sole responsibility of the user.
 Released under the **MIT License** — see [`LICENSE`](LICENSE) for the
 full text, including the research-use-only notice.
 
-All code in `abpet/` and `dev/` is original to this project; no third-party
-code carrying a copyleft or non-commercial license was incorporated.
+All code in `mygo_centiloid/`, `dev/`, and `ablations/` is original to this
+project; no third-party code carrying a copyleft or non-commercial license
+was incorporated.
 
 ---
 
@@ -422,7 +520,7 @@ Citations for the prior work that directly informed each MYGO component.
     sampling of medical images in deep learning. *Computer Methods and
     Programs in Biomedicine* 2021;208:106236. — reference for
     per-tracer-strength 3D augmentation choices in
-    `abpet/data/augmentation.py`.
+    `mygo_centiloid/data/augmentation.py`.
     [doi:10.1016/j.cmpb.2021.106236](https://doi.org/10.1016/j.cmpb.2021.106236)
 
 ### Domain — amyloid PET and the Centiloid scale

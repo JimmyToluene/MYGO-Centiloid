@@ -40,7 +40,7 @@ from tqdm import tqdm
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _common import (
     AMYLOID_POS_THRESHOLD, TRACER_ORDER, TRACER_COLORS,
-    FOREGROUND_THRESH, setup_style, log,
+    FOREGROUND_THRESH, setup_style, set_run_tag, log,
 )
 
 setup_style()
@@ -368,9 +368,14 @@ def main():
     parser.add_argument("--cohort_csv", default=None,
                         help="Optional CSV mapping ID → cohort (NACC/A4). "
                              "If omitted, cohort plots are skipped.")
+    parser.add_argument("--tag",        default=None,
+                        help="Label stamped on every figure "
+                             "(e.g. run/experiment name). "
+                             "Defaults to basename(out_dir).")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
+    set_run_tag(args.tag or os.path.basename(args.out_dir.rstrip("/\\")))
     print(f"\n{'#'*55}")
     print("  EDA 03 — Calibration Analysis")
     print(f"  Sampling {args.n_samples} volumes per tracer")

@@ -32,7 +32,7 @@ from scipy import stats
 
 # Shared EDA constants & style
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _common import AMYLOID_POS_THRESHOLD, setup_style, log
+from _common import AMYLOID_POS_THRESHOLD, setup_style, set_run_tag, log
 
 # ── Config ────────────────────────────────────────────────────────────────────
 PALETTE = sns.color_palette("Set2")
@@ -357,9 +357,14 @@ def main():
     parser.add_argument("--train_csv", default="data/train.csv")
     parser.add_argument("--val_csv",   default="data/val.csv")
     parser.add_argument("--out_dir",   default="results/eda/pre_train/01_centiloid_distribution")
+    parser.add_argument("--tag",       default=None,
+                        help="Label stamped on every figure "
+                             "(e.g. run/experiment name). "
+                             "Defaults to basename(out_dir).")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
+    set_run_tag(args.tag or os.path.basename(args.out_dir.rstrip("/\\")))
     print(f"\n{'#'*55}")
     print(f"  EDA 01 — Centiloid Distribution Analysis")
     print(f"  Output → {args.out_dir}")

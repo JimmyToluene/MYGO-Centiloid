@@ -10,9 +10,16 @@ Usage:
 """
 
 import argparse
+import os, sys
 import pandas as pd
 import numpy as np
 from scipy.stats import pearsonr
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from mygo_centiloid.utils import (
+    make_run_dir, write_config, write_metrics, append_registry,
+)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -98,6 +105,16 @@ def evaluate(pred_path: str, gt_path: str):
     overall_mse = print_report("ALL", y_true, y_pred, n_merged)
     print()
 
+    metrics = {
+        "ALL": {
+            "n":    n_merged,
+            "mse":  mean_squared_error(y_true, y_pred),
+            "rmse": root_mean_squared_error(y_true, y_pred),
+            "mae":  mean_absolute_error(y_true, y_pred),
+            "r":    pearson_r(y_true, y_pred),
+        }
+    }
+
     # ── Per-tracer metrics ────────────────────────────────────────────────
     print("  ── PER TRACER ───────────────────────────────────────")
     print(f"  {'Tracer':<10} {'N':>5} {'MSE':>10} {'RMSE':>10} {'MAE':>10} {'Pearson r':>10}")
@@ -114,11 +131,12 @@ def evaluate(pred_path: str, gt_path: str):
         r    = pearson_r(t_true, t_pred)
 
         print(f"  {tracer:<10} {n:>5} {mse:>10.4f} {rmse:>10.4f} {mae:>10.4f} {r:>10.4f}")
+        metrics[str(tracer)] = {"n": n, "mse": mse, "rmse": rmse, "mae": mae, "r": r}
 
     print("=" * 57)
     print(f"\n  ✅  Overall MSE: {overall_mse:.4f}\n")
 
-    return overall_mse
+    return metrics
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -131,9 +149,34 @@ def parse_args():
                         help="Path to predictions.csv (must have ID, PREDICTED_CENTILOIDS)")
     parser.add_argument("--gt",   type=str, required=True,
                         help="Path to val.csv (must have ID, CENTILOIDS, TRACER.AMY)")
+    parser.add_argument("--model",    type=str, default="unknown",
+                        help="Model name for registry bookkeeping "
+                             "(e.g. petresnet, petresnet_no_film).")
+    parser.add_argument("--run_name", type=str, default=None)
+    parser.add_argument("--log_dir",  type=str, default="logs")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    evaluate(pred_path=args.pred, gt_path=args.gt)
+
+    run_dir = make_run_dir(
+        run_type="evaluate", model=args.model,
+        base=args.log_dir, run_name=args.run_name,
+    )
+    write_config(run_dir, {"run_type": "evaluate", **vars(args)})
+    print(f"Run dir: {run_dir}\n")
+
+    metrics = evaluate(pred_path=args.pred, gt_path=args.gt)
+
+    write_metrics(run_dir, {"run_type": "evaluate", "model": args.model,
+                            "pred": args.pred, "gt": args.gt,
+                            "subsets": metrics})
+    append_registry({
+        "type":    "evaluate",
+        "model":   args.model,
+        "run_dir": str(run_dir),
+        "pred":    args.pred,
+        "gt":      args.gt,
+        "metrics": {"ALL": metrics["ALL"]},
+    })

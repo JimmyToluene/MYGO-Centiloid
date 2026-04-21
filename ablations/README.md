@@ -6,8 +6,8 @@ TracerNorm + per-stage FiLM + head-level tracer embedding, **leaderboard
 MAE 11.7916 CL** — final competition score; 11.73 internal) remains the
 reference; everything here is exploratory.
 
-Model variants (`petresnet_no_film.py`, `petresnet_attn.py`,
-`petresnet_attn_gated.py`) live under
+Model variants (`petresnet_no_film.py`, `petresnet_no_head_emb.py`,
+`petresnet_attn.py`, `petresnet_attn_gated.py`) live under
 [`mygo_centiloid/model/`](../mygo_centiloid/model/) so that
 `dev/train.py` can import them by name from the package. Only
 ablation-specific **configs**, **scripts**, and **write-ups** live here.
@@ -25,6 +25,7 @@ the hackathon leaderboard is **11.7916 CL**.
 |---|-------|---------------|--------------------|-----------------|-------|
 | 0 | Submission (reference) | `PETResNet` (TracerNorm + FiLM + tracer emb) | **11.73** (leaderboard: 11.7916) | — | canonical |
 | 1 | [Tracer conditioning](studies/tracer_conditioning.md) | `PETResNetNoFiLM` (TracerNorm only) | **9.03** | −2.70 | dropping FiLM + head emb helps |
+| 1b | [Tracer conditioning](studies/tracer_conditioning.md) | `PETResNetNoHeadEmb` (TracerNorm + FiLM, no head emb) | _pending_ | _pending_ | isolates head-emb effect |
 | 2 | [Spatial attention](studies/attention_study.md) | `PETResNetAttn` (stage-4 CBAM, on No-FiLM base) | 10.02 | −1.71 | ~2× faster early convergence; no final gain |
 | 2b | [Spatial attention (gated)](studies/attention_study.md) | `PETResNetAttnGated` (residual zero-init) | _pending_ | _pending_ | stabilizes epoch-1 Pearson r |
 
@@ -38,6 +39,7 @@ ablations/
 ├── README.md                           this file — index + headline numbers
 ├── configs/
 │   ├── train_no_tracernorm.yaml        no-FiLM / TracerNorm-frozen variant
+│   ├── train_no_head_emb.yaml          TracerNorm + FiLM, head-emb concat dropped
 │   ├── stage3_attn.yaml                No-FiLM + stage-4 CBAM attention
 │   └── stage3_attn_gated.yaml          same, residual + zero-init
 ├── scripts/
@@ -57,6 +59,9 @@ installed (`pip install -e .`) and data is linked at `./data/`.
 ```bash
 # 1. Tracer conditioning — train No-FiLM variant
 bash dev/train.sh ablations/configs/train_no_tracernorm.yaml
+
+# 1b. Tracer conditioning — FiLM retained, head-emb concat dropped
+bash dev/train.sh ablations/configs/train_no_head_emb.yaml
 
 # 2. Stage-4 spatial attention — train CBAM variant on No-FiLM base
 bash dev/train.sh ablations/configs/stage3_attn.yaml

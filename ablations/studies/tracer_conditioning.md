@@ -17,14 +17,23 @@ How much of the accuracy comes from each level?
 
 ## Design
 
-We train `PETResNetNoFiLM` — identical to `PETResNet` except that
-(2) and (3) are removed while (1) `TracerNorm` is retained. Everything
-else is held constant: same data splits, sampler, loss, optimizer,
-scheduler, seed (42).
+We run two removal arms, each holding everything else constant (same
+data splits, sampler, loss, optimizer, scheduler, seed 42):
 
-Config: [`../configs/train_no_tracernorm.yaml`](../configs/train_no_tracernorm.yaml).
+- **`PETResNetNoFiLM`** — drops both (2) FiLM and (3) head-level
+  tracer embedding. Only (1) TracerNorm remains.
+  Config: [`../configs/train_no_tracernorm.yaml`](../configs/train_no_tracernorm.yaml).
+  Model: [`mygo_centiloid/model/petresnet_no_film.py`](../../mygo_centiloid/model/petresnet_no_film.py).
+- **`PETResNetNoHeadEmb`** — drops only (3), retaining (1) TracerNorm
+  and (2) per-stage FiLM. Isolates the contribution of the head-level
+  concat on top of per-stage FiLM conditioning.
+  Config: [`../configs/train_no_head_emb.yaml`](../configs/train_no_head_emb.yaml).
+  Model: [`mygo_centiloid/model/petresnet_no_head_emb.py`](../../mygo_centiloid/model/petresnet_no_head_emb.py).
 
-Model: [`mygo_centiloid/model/petresnet_no_film.py`](../../mygo_centiloid/model/petresnet_no_film.py).
+Reading the two together separates "FiLM hurts" from "head-emb
+shortcut hurts": if `NoHeadEmb` is close to `NoFiLM`, the damage came
+from the head shortcut; if it tracks the submission, FiLM was the
+problem.
 
 ## Result
 
@@ -35,6 +44,7 @@ leaderboard is 11.7916 CL.
 | Variant | FiLM | Head emb | TracerNorm | Val MAE (internal) | Val Pearson r |
 |---|---|---|---|---|---|
 | Submission (`PETResNet`) | ✓ | ✓ | ✓ | 11.73 | 0.936 |
+| `PETResNetNoHeadEmb` | ✓ | — | ✓ | _pending_ | _pending_ |
 | `PETResNetNoFiLM` | — | — | ✓ | **9.03** | _tbd_ |
 
 Removing the deeper conditioning pathways **improves** internal val MAE

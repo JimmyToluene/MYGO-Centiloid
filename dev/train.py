@@ -29,8 +29,8 @@ from torch.utils.data import DataLoader, WeightedRandomSampler
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mygo_centiloid import (
-    PETDataset, PETResNet, PETResNetNoFiLM, PETResNetNoHeadEmb,
-    PETResNetAttn, PETResNetAttnGated,
+    PETDataset, PETResNet, PETResNetNoFiLM, PETResNetNoFiLMOnly,
+    PETResNetNoHeadEmb, PETResNetAttn, PETResNetAttnGated,
     get_criterion,
 )
 from mygo_centiloid.utils import (
@@ -244,6 +244,14 @@ def main():
     elif M["name"] == "petresnet_no_film":
         model = PETResNetNoFiLM(
             num_tracers    = num_tracers,
+            dropout_high   = M["dropout_high"],
+            dropout_low    = M["dropout_low"],
+            mean_centiloid = mean_cl,
+        ).to(device)
+    elif M["name"] == "petresnet_no_film_only":
+        model = PETResNetNoFiLMOnly(
+            num_tracers    = num_tracers,
+            emb_dim        = M["emb_dim"],
             dropout_high   = M["dropout_high"],
             dropout_low    = M["dropout_low"],
             mean_centiloid = mean_cl,

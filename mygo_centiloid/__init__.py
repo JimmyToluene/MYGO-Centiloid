@@ -13,6 +13,7 @@ from mygo_centiloid.data.dataset      import PETDataset
 from mygo_centiloid.data.augmentation import build_train_transform
 from mygo_centiloid.model.petresnet_film          import PETResNet, BaselineCNN
 from mygo_centiloid.model.petresnet_no_film  import PETResNetNoFiLM
+from mygo_centiloid.model.petresnet_no_film_only import PETResNetNoFiLMOnly
 from mygo_centiloid.model.petresnet_no_head_emb import PETResNetNoHeadEmb
 from mygo_centiloid.model.petresnet_attn     import PETResNetAttn, SpatialAttention3D
 from mygo_centiloid.model.petresnet_attn_gated import PETResNetAttnGated, SpatialAttention3DGated
@@ -23,6 +24,7 @@ __all__ = [
     "build_train_transform",
     "PETResNet",
     "PETResNetNoFiLM",
+    "PETResNetNoFiLMOnly",
     "PETResNetNoHeadEmb",
     "PETResNetAttn",
     "SpatialAttention3D",

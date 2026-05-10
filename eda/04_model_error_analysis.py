@@ -3,8 +3,6 @@
 ==========================
 EDA Script 4 — Model Error & Prediction Analysis
 
-Justifies : post-training diagnostics — feeds back into ablations
-            (loss δ tuning, per-tracer head adjustments, augmentation strength)
 Reads     : val.csv, [predictions.csv]
 Writes    : results/eda/04_model_error_analysis/
 

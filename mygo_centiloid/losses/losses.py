@@ -1,29 +1,11 @@
-"""
-Loss functions for Amyloid PET Centiloid Prediction.
-
-EDA motivation for CentiloidLoss:
-  - Distribution is right-skewed (median ≈ 10, long upper tail)
-  - Outliers exist: CL as low as -50, as high as 200+
-  - HuberLoss(δ=25) is MSE-like inside ±25 CL (covers the IQR)
-    and L1-like beyond — robust to the long tail without ignoring it.
-  - Pearson term directly aligns training with the secondary eval metric
-    and prevents a constant-prediction collapse under Huber alone.
-"""
+"""Loss functions for Amyloid PET Centiloid Prediction."""
 
 import torch
 import torch.nn as nn
 
 
 class CentiloidLoss(nn.Module):
-    """
-    Combined Huber + Pearson correlation loss.
-
-    Loss = α · Huber(δ) + (1−α) · (1 − Pearson_r)
-
-    Args:
-        delta: Huber threshold. Default 25 ≈ IQR (P25=−1.5 → P75=47.2).
-        alpha: Weight on Huber term; (1−alpha) goes to Pearson. Default 0.7.
-    """
+    """Combined Huber + Pearson correlation loss."""
 
     def __init__(self, delta: float = 25.0, alpha: float = 0.7):
         super().__init__()

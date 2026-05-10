@@ -3,8 +3,6 @@
 ==========================
 EDA Script 3 — Volume Intensity & Calibration Analysis
 
-Justifies : TracerNorm magnitude (per-tracer μ shift) [model.py],
-            foreground-aware preprocessing assumptions [README §preprocessing]
 Reads     : train.csv, val.csv  (npy_path, TRACER.AMY, CENTILOIDS)
 Optional  : --cohort_csv mapping ID → {NACC, A4} for cohort plots
 Writes    : results/eda/03_calibration_analysis/

@@ -127,8 +127,6 @@ def main():
             dropout_low  = dropout_low,
         ).to(device)
     print(f"Model: {model_name}")
-    if ckpt.get("freeze_tracer_norm"):
-        print("TracerNorm: was frozen at identity during training (ablation ckpt)")
     print()
 
     # Strip torch.compile prefix if present

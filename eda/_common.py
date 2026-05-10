@@ -68,8 +68,8 @@ def set_run_tag(tag: str | None) -> None:
     (e.g. the output directory basename, or a --tag CLI argument). All
     matplotlib figures saved afterwards include `<tag>  ·  <UTC time>`
     centered above the figure — useful when the same script is run for
-    multiple experiments (baseline vs ablation) and you need to tell the
-    resulting PNGs apart at a glance.
+    multiple experiments and you need to tell the resulting PNGs apart at
+    a glance.
     """
     global _RUN_TAG
     _RUN_TAG = tag

@@ -1,23 +1,4 @@
-"""
-Ablation: PETResNet without FiLM conditioning or shared tracer embedding.
-
-Isolates the contribution of FiLM + tracer-embedding conditioning by removing
-them while preserving every other component of the full model:
-
-  Kept:
-    - TracerNorm           (per-tracer intensity γ/β — independent embeddings)
-    - 3D ResNet-18 backbone
-    - Regression head (no final activation)
-
-  Removed:
-    - Shared tracer embedding (`tracer_emb`)
-    - FiLM blocks at every ResNet stage
-    - Concatenation of tracer embedding into the head (feat_dim: 544 → 512)
-
-The forward signature still accepts `tracer_idx` so training / evaluation
-code that targets PETResNet can drop in this ablation unchanged — the id is
-routed to TracerNorm only.
-"""
+"""Alternative PETResNet variant using TracerNorm without FiLM conditioning."""
 
 import torch
 import torch.nn as nn
@@ -26,25 +7,7 @@ from mygo_centiloid.model.petresnet_film import TracerNorm, ResBlock3D
 
 
 class PETResNetNoFiLM(nn.Module):
-    """
-    3D ResNet-18 + TracerNorm, with FiLM and tracer embedding ablated.
-
-    Forward pass:
-        TracerNorm                           per-tracer intensity fix
-              ↓
-        Stem: Conv7³(s=2) + MaxPool(s=2)    (B,  1,128³) → (B, 64,32³)
-              ↓
-        Stage 1: ResBlock × 2  (stride=1)   → (B,  64, 32³)
-        Stage 2: ResBlock × 2  (stride=2)   → (B, 128, 16³)
-        Stage 3: ResBlock × 2  (stride=2)   → (B, 256,  8³)
-        Stage 4: ResBlock × 2  (stride=2)   → (B, 512,  4³)
-              ↓
-        Global Average Pool                 → (B, 512)
-              ↓
-        FC(512→256) → BN → GELU → Drop(0.4)
-        FC(256→ 64) → BN → GELU → Drop(0.2)
-        FC( 64→  1)   ← NO activation (centiloids can be negative)
-    """
+    """3D ResNet-based regressor with TracerNorm only (no FiLM conditioning)."""
 
     def __init__(
         self,
@@ -106,7 +69,7 @@ class PETResNetNoFiLM(nn.Module):
     def summary(self, input_size=(1, 1, 128, 128, 128), depth: int = 4) -> None:
         bar = "=" * 88
         print(bar)
-        print(f"{'PETResNet-NoFiLM (ablation) Architecture':^88}")
+        print(f"{'PETResNet-NoFiLM Architecture':^88}")
         print(bar)
 
         device      = next(self.parameters()).device

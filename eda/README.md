@@ -6,8 +6,7 @@ Exploratory data analysis for **MYGO**, the team's submission to the
 **MedAI Spring 2026 Amyloid β-PET Centiloid Prediction Challenge**
 (Kolachalama Lab, Boston University). Each script in this directory
 answers a single empirical question and produces the figures, tables,
-and statistical tests that motivate the architectural choices in
-`abpet/model/petresnet.py`, `abpet/nn/losses.py`, and `dev/train.py`.
+and statistical tests that characterise the dataset.
 
 The data are 2,000 training and 500 validation 3D PET volumes
 (`(1, 128, 128, 128)`, float32, min-max normalised), each with a
@@ -25,10 +24,9 @@ Challenge repository: <https://github.com/vkola-lab/medaihack>
 3. [Analyses](#3-analyses)
 4. [Runbook](#4-runbook)
 5. [Outputs](#5-outputs)
-6. [From findings to Design](#6-findings--design)
-7. [Reproducibility](#7-reproducibility)
-8. [Limitations](#8-limitations)
-9. [References](#9-references)
+6. [Reproducibility](#6-reproducibility)
+7. [Limitations](#7-limitations)
+8. [References](#8-references)
 
 ---
 
@@ -83,12 +81,12 @@ data/
 
 ## 3. Analyses
 
-| # | Script | Question | Statistical methods | Justifies |
-|---|---|---|---|---|
-| 01 | `01_centiloid_distribution.py` | How is centiloid distributed across splits and amyloid-status groups? | mean, median, skew, excess kurtosis; KS 2-sample (train vs val); empirical CDF | `HuberLoss(δ=25)`, `WeightedRandomSampler` |
-| 02 | `02_tracer_comparison.py` | Do the four tracers differ in centiloid and image intensity? | per-tracer KDE; pairwise KS (6 pairs); pairwise Mann-Whitney U; axial mid-slice samples | `TracerNorm`, `FiLM` conditioning, per-tracer augmentation |
-| 03 | `03_calibration_analysis.py` | How do voxel intensities and brain coverage differ across tracers? | per-tracer voxel μ/σ/p95/p99; foreground fraction (>0.05); one-way ANOVA on `vol_mean` | `TracerNorm` magnitude; preprocessing assumptions |
-| 04 | `04_model_error_analysis.py` | Where does the trained model fail? Per-tracer? Per CL bin? Versus naive baselines? | residual KDE + Q-Q + Shapiro-Wilk; Bland-Altman per tracer; stratified MAE; baseline comparison | post-training diagnostics → ablation feedback |
+| # | Script | Question | Statistical methods |
+|---|---|---|---|
+| 01 | `01_centiloid_distribution.py` | How is centiloid distributed across splits and amyloid-status groups? | mean, median, skew, excess kurtosis; KS 2-sample (train vs val); empirical CDF |
+| 02 | `02_tracer_comparison.py` | Do the four tracers differ in centiloid and image intensity? | per-tracer KDE; pairwise KS (6 pairs); pairwise Mann-Whitney U; axial mid-slice samples |
+| 03 | `03_calibration_analysis.py` | How do voxel intensities and brain coverage differ across tracers? | per-tracer voxel μ/σ/p95/p99; foreground fraction (>0.05); one-way ANOVA on `vol_mean` |
+| 04 | `04_model_error_analysis.py` | Where does the trained model fail? Per-tracer? Per CL bin? Versus naive baselines? | residual KDE + Q-Q + Shapiro-Wilk; Bland-Altman per tracer; stratified MAE; baseline comparison |
 
 All scripts share the I/O contract:
 
@@ -207,25 +205,7 @@ results/eda/
 
 ---
 
-## 6. Findings → Design
-
-The empirical findings produced by this suite are the sole motivation for
-the architectural choices in the codebase. The trace from finding to
-design choice is encoded in the `Justifies:` header of every script and
-summarised here:
-
-| Empirical finding | Source script | Design response | Implementation |
-|---|---|---|---|
-| Centiloid is right-skewed (median ≈ 10, IQR P25 ≈ −1.5 → P75 ≈ 47.2) | `01` | Robust regression with `δ ≈ IQR` | `HuberLoss(δ=25)` in `abpet/nn/losses.py` |
-| 64.8 % of training samples are amyloid-negative (CL < 24.4) | `01` | Inverse-frequency oversampling | `WeightedRandomSampler` in `dev/train.py` |
-| FBP voxel intensities are visibly brighter than FBB / NAV / PIB | `02`, `03` | Learned per-tracer (γ, β) intensity rescale | `TracerNorm` in `abpet/model/petresnet.py` |
-| NAV is the most distributionally distant tracer (KS = 0.240 vs FBP) | `02` | Strong tracer conditioning at every backbone stage | `FiLMBlock` × 4 in `abpet/model/petresnet.py` |
-| NAV has only n = 85 training samples | `02` | Stronger augmentation + higher head dropout | `build_train_transform(strong=True)` for NAV / PIB; `dropout_high=0.4` |
-| Centiloid contains negative values (≥ −50) | `01` | No output activation | linear final FC in `abpet/model/petresnet.py` |
-
----
-
-## 7. Reproducibility
+## 6. Reproducibility
 
 | Source of randomness | Seed |
 |---|---|
@@ -239,7 +219,7 @@ be audited without re-running the suite.
 
 ---
 
-## 8. Limitations
+## 7. Limitations
 
 - **Cohort metadata is optional.** Script 03 will *not* fabricate
   cohort labels if metadata is absent — the cohort comparison plot is
@@ -259,7 +239,7 @@ be audited without re-running the suite.
 
 ---
 
-## 9. References
+## 8. References
 
 **Methodology**
 
@@ -267,8 +247,6 @@ be audited without re-running the suite.
 - Bland JM, Altman DG. Statistical methods for assessing agreement
   between two methods of clinical measurement. *The Lancet.*
   1986;327(8476):307–310.
-- Huber PJ. Robust Estimation of a Location Parameter.
-  *Annals of Mathematical Statistics.* 1964;35(1):73–101.
 
 **Domain — amyloid PET and the Centiloid scale**
 
@@ -284,17 +262,6 @@ be audited without re-running the suite.
 - Jagust WJ, Landau SM, Koeppe RA, et al. The Alzheimer's Disease
   Neuroimaging Initiative 2 PET Core: 2015. *Alzheimer's & Dementia.*
   2015;11(7):757–771.
-
-**Architecture inspirations** (cross-referenced from `abpet/model/petresnet.py`)
-
-- Perez E, Strub F, de Vries H, Dumoulin V, Courville A. FiLM: Visual
-  Reasoning with a General Conditioning Layer. *AAAI 2018.*
-- He K, Zhang X, Ren S, Sun J. Deep Residual Learning for Image
-  Recognition. *CVPR 2016.*
-- Pérez-García F, Sparks R, Ourselin S. TorchIO: a Python library for
-  efficient loading, preprocessing, augmentation and patch-based sampling
-  of medical images in deep learning. *Computer Methods and Programs in
-  Biomedicine.* 2021;208:106236.
 
 **Challenge**
 

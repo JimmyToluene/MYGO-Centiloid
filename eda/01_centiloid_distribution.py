@@ -3,7 +3,6 @@
 ============================
 EDA Script 1 — Centiloid Score Distribution Analysis
 
-Justifies : HuberLoss(δ=25) [losses.py], WeightedRandomSampler [train.py]
 Reads     : train.csv, val.csv  (CENTILOIDS column)
 Writes    : results/eda/01_centiloid_distribution/
 

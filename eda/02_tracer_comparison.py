@@ -3,8 +3,6 @@
 =======================
 EDA Script 2 — Radiotracer Comparison Analysis
 
-Justifies : TracerNorm + FiLM conditioning [model.py],
-            per-tracer augmentation strength [train.py / augmentation.py]
 Reads     : train.csv, val.csv  (TRACER.AMY, CENTILOIDS, npy_path)
 Writes    : results/eda/02_tracer_comparison/
 

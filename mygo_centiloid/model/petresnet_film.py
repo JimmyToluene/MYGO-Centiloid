@@ -1,14 +1,4 @@
-"""
-Improved Model Architecture for Amyloid PET Centiloid Prediction.
-
-EDA → Design mapping:
-  FBP brighter than FBB/PIB/NAV  → TracerNorm (per-tracer learned scale/shift)
-  NAV most different (KS=0.240)  → FiLM conditioning at every ResNet stage
-  PIB dark at high CL            → TracerNorm fixes intensity before encoding
-  Negative CL values exist (-50) → No output activation (linear head)
-  Small NAV set (n=85)           → Higher dropout (0.4) in head
-  Simple CNN baseline            → 3D ResNet-18 for deeper feature extraction
-"""
+"""Model architecture for Amyloid PET Centiloid Prediction."""
 
 import torch
 import torch.nn as nn
@@ -19,18 +9,7 @@ import torch.nn as nn
 # ─────────────────────────────────────────────────────────────────────────────
 
 class TracerNorm(nn.Module):
-    """
-    Learned per-tracer intensity normalization.
-
-    EDA Finds: FBP images are visually much brighter than FBB / NAV / PIB.
-    Applying a per-tracer (γ, β) normalizes each tracer's intensity
-    distribution before any shared feature extraction.
-
-    Initialized to identity (γ=1, β=0) so training starts from the
-    original signal without any destructive rescaling.
-
-    Shape: (B, 1, D, H, W) → (B, 1, D, H, W)
-    """
+    """Per-tracer intensity normalization. Shape: (B, 1, D, H, W) → (B, 1, D, H, W)."""
 
     def __init__(self, n_tracers: int):
         super().__init__()
@@ -46,18 +25,7 @@ class TracerNorm(nn.Module):
 
 
 class FiLMBlock(nn.Module):
-    """
-    Feature-wise Linear Modulation conditioned on tracer embedding.
-
-    EDA: NAV has the highest KS distance (0.240) from other tracers.
-    FiLM allows each tracer to independently rescale & shift every
-    feature map channel, going beyond a single embedding lookup.
-
-    Initialized to identity so the residual backbone is stable at
-    the start of training.
-
-    Shape: (B, C, D, H, W) → (B, C, D, H, W)
-    """
+    """Feature-wise Linear Modulation conditioned on tracer embedding. Shape: (B, C, D, H, W) → (B, C, D, H, W)."""
 
     def __init__(self, tracer_dim: int, feat_dim: int):
         super().__init__()
@@ -111,34 +79,7 @@ class ResBlock3D(nn.Module):
 # ─────────────────────────────────────────────────────────────────────────────
 
 class PETResNet(nn.Module):
-    """
-    3D ResNet-18 backbone with TracerNorm + FiLM conditioning.
-
-    Full forward pass:
-        TracerNorm                           fixes intensity per tracer
-              ↓
-        Stem: Conv7³(s=2) + MaxPool(s=2)    (B,  1,128,128,128) → (B, 64,32,32,32)
-              ↓
-        Stage 1: ResBlock × 2  (stride=1)   → (B,  64, 32, 32, 32)  + FiLM
-        Stage 2: ResBlock × 2  (stride=2)   → (B, 128, 16, 16, 16)  + FiLM
-        Stage 3: ResBlock × 2  (stride=2)   → (B, 256,  8,  8,  8)  + FiLM
-        Stage 4: ResBlock × 2  (stride=2)   → (B, 512,  4,  4,  4)  + FiLM
-              ↓
-        Global Average Pool                 → (B, 512)
-              ↓
-        Concat tracer_emb                   → (B, 544)
-              ↓
-        FC(544→256) → BN → GELU → Drop(0.4)
-        FC(256→ 64) → BN → GELU → Drop(0.2)
-        FC( 64→  1)   ← NO activation (centiloids can be negative)
-
-    Args:
-        num_tracers:    Number of distinct PET tracers.
-        emb_dim:        Tracer embedding size. Default 32.
-        dropout_high:   Dropout rate for first FC layer. Default 0.4.
-        dropout_low:    Dropout rate for second FC layer. Default 0.2.
-        mean_centiloid: Dataset mean used to initialize output bias.
-    """
+    """3D ResNet-based regressor for Centiloid prediction."""
 
     def __init__(
         self,

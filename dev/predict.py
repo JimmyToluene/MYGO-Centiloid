@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mygo_centiloid import PETDataset, PETResNet, PETResNetNoFiLM
+from mygo_centiloid import PETDataset, PETResNet, PETResNetNoFiLM, PETResNetNoHeadEmb
 from mygo_centiloid.utils import (
     make_run_dir, write_config, write_metrics, append_registry,
 )
@@ -116,6 +116,13 @@ def main():
     if model_name == "petresnet_no_film":
         model = PETResNetNoFiLM(
             num_tracers  = num_tracers,
+            dropout_high = dropout_high,
+            dropout_low  = dropout_low,
+        ).to(device)
+    elif model_name == "petresnet_no_head_emb":
+        model = PETResNetNoHeadEmb(
+            num_tracers  = num_tracers,
+            emb_dim      = emb_dim,
             dropout_high = dropout_high,
             dropout_low  = dropout_low,
         ).to(device)

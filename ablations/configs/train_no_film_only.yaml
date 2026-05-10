@@ -1,0 +1,45 @@
+# −FiLM ABLATION — TracerNorm + GAP + head-level tracer embedding retained;
+# FiLM blocks at every ResNet stage removed. Symmetric sibling of
+# `train_no_head_emb.yaml` — together they complete the 2×2
+# (FiLM × head-embedding) ablation grid while TracerNorm stays trained.
+#
+# Answers: does per-stage FiLM conditioning help or hurt, holding the
+# head-level tracer embedding concat fixed?
+#
+# Launch:
+#     bash dev/train.sh ablations/configs/train_no_film_only.yaml
+
+paths:
+  train_csv: data/train.csv
+  val_csv:   data/val.csv
+  log_dir:   logs
+  checkpoint_dir: null        # null  → <run_dir>/checkpoints
+
+run:
+  name: ablation_no_film_only
+  seed: 42
+
+model:
+  name: petresnet_no_film_only   # FiLM off, TracerNorm + head-emb concat on
+  emb_dim:      32               # concatenated to pooled features in head
+  dropout_high: 0.4
+  dropout_low:  0.2
+  freeze_tracer_norm: false      # TracerNorm trained — isolating FiLM effect
+
+training:
+  epochs:       100
+  batch_size:   4
+  num_workers:  4
+  lr:           1.0e-4
+  weight_decay: 1.0e-4
+  clip_grad:    1.0
+  patience:     20
+
+augmentation:
+  enabled:    true
+  per_tracer: true               # STRONG for NAV/PIB when true
+
+loss:
+  name:  centiloid               # centiloid | huber | mse | mae
+  delta: 25.0                    # Huber threshold (≈ IQR of CL)
+  alpha: 0.7                     # mix: α·Huber + (1−α)·(1 − Pearson r)

@@ -1,0 +1,44 @@
+# HEAD-EMBEDDING ABLATION — TracerNorm + FiLM retained, head-level tracer
+# embedding concat removed. Middle arm between the submission
+# (TN + FiLM + head emb, val MAE 11.73) and PETResNetNoFiLM (TN only, 9.03).
+#
+# Answers: does the head-level tracer embedding help or hurt, holding the
+# per-stage FiLM conditioning fixed?
+#
+# Launch:
+#     bash dev/train.sh ablations/configs/train_no_head_emb.yaml
+
+paths:
+  train_csv: data/train.csv
+  val_csv:   data/val.csv
+  log_dir:   logs
+  checkpoint_dir: null        # null  → <run_dir>/checkpoints
+
+run:
+  name: ablation_no_head_emb
+  seed: 42
+
+model:
+  name: petresnet_no_head_emb   # petresnet | petresnet_no_film | petresnet_no_head_emb
+  emb_dim:      32              # feeds FiLM; no longer concatenated to head
+  dropout_high: 0.4
+  dropout_low:  0.2
+  freeze_tracer_norm: false     # TracerNorm trained — isolating head-emb effect
+
+training:
+  epochs:       100
+  batch_size:   4
+  num_workers:  4
+  lr:           1.0e-4
+  weight_decay: 1.0e-4
+  clip_grad:    1.0
+  patience:     20
+
+augmentation:
+  enabled:    true
+  per_tracer: true              # STRONG for NAV/PIB when true
+
+loss:
+  name:  centiloid              # centiloid | huber | mse | mae
+  delta: 25.0                   # Huber threshold (≈ IQR of CL)
+  alpha: 0.7                    # mix: α·Huber + (1−α)·(1 − Pearson r)
